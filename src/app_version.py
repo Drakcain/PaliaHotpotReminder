@@ -1,0 +1,3 @@
+APP_VERSION = "v2.8"
+APP_VERSION_NUMBER = "2.8"
+

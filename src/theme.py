@@ -1,0 +1,41 @@
+from __future__ import annotations
+
+THEMES = {
+    "dark": {
+        "window_bg": "#000000",
+        "panel_bg": "#0B0B0F",
+        "panel_raised": "#111217",
+        "field_bg": "#050505",
+        "text": "#F5F5F7",
+        "text_secondary": "#C9CDD6",
+        "text_muted": "#9BA1AD",
+        "border": "#2A2D35",
+        "strong_border": "#3B3F4A",
+        "button_bg": "#151720",
+        "button_hover": "#1E2230",
+        "button_text": "#FFFFFF",
+        "accent": "#5865F2",
+        "good": "#7DD3FC",
+        "warning": "#FACC15",
+        "error": "#F87171",
+    },
+    "light": {
+        "window_bg": "#f4f4f4",
+        "panel_bg": "#ffffff",
+        "panel_raised": "#ffffff",
+        "field_bg": "#ffffff",
+        "text": "#1f1f1f",
+        "text_secondary": "#4f4f4f",
+        "text_muted": "#666666",
+        "border": "#d0d0d0",
+        "strong_border": "#a8a8a8",
+        "button_bg": "#e6e6e6",
+        "button_hover": "#d8d8d8",
+        "button_text": "#1f1f1f",
+        "accent": "#3b82f6",
+        "good": "#0ea5e9",
+        "warning": "#b45309",
+        "error": "#dc2626",
+    },
+}
+

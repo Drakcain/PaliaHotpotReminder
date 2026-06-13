@@ -1,0 +1,85 @@
+{
+  "tesseract_cmd": "C:\\Program Files\\Tesseract-OCR\\tesseract.exe",
+  "palia_minutes_per_real_second": 0.4,
+  "max_estimated_reminder_age_seconds": 300,
+  "stale_after_seconds": 900,
+  "poll_interval_seconds": 1.0,
+  "unreadable_reads_before_hidden": 2,
+  "watch_log_enabled": true,
+  "reminders_enabled": true,
+  "theme": "dark",
+  "start_with_windows": false,
+  "auto_arm_when_palia_opens": true,
+  "smart_resume_enabled": true,
+  "smart_recall_enabled": true,
+  "start_minimized": false,
+  "minimize_to_tray": true,
+  "close_to_tray": true,
+  "show_tray_notifications": true,
+  "debug_logging": true,
+  "debug_verbose": false,
+  "palia_process_names": [
+    "PaliaClientSteam-Win64-Shipping.exe",
+    "PaliaClient-Win64-Shipping.exe",
+    "Palia.exe"
+  ],
+  "palia_launcher_process_names": [
+    "PaliaClientSteam.exe"
+  ],
+  "palia_process_poll_seconds": 5,
+  "pause_when_palia_closes": true,
+  "reminder_cooldown_seconds": 300,
+  "stale_warning_enabled": true,
+  "hotpot_start_time": "6:00 PM",
+  "hotpot_end_time": "3:00 AM",
+  "hotpot_warning_times": [
+    "5:45 PM",
+    "6:00 PM",
+    "12:00 AM",
+    "2:50 AM",
+    "3:00 AM"
+  ],
+  "reminder_minutes": [
+    "5:45 PM",
+    "6:00 PM",
+    "12:00 AM",
+    "2:50 AM",
+    "3:00 AM"
+  ],
+  "hotpot_reminder_messages": {
+    "5:45 PM": {
+      "title": "Hotpot starts soon!",
+      "message": "Head over before it begins."
+    },
+    "6:00 PM": {
+      "title": "Hotpot has Started!",
+      "message": "Good Luck and Have Fun!"
+    },
+    "12:00 AM": {
+      "title": "Hotpot is Still Running!",
+      "message": "Keep going and good luck!"
+    },
+    "2:50 AM": {
+      "title": "Hotpot is Ending Soon!",
+      "message": "Finish up while you can!"
+    },
+    "3:00 AM": {
+      "title": "Hotpot has Ended!",
+      "message": "See you next time!"
+    }
+  },
+  "popup_style": "custom",
+  "popup_duration_seconds": 15,
+  "popup_position": "left",
+  "popup_asset_path": "assets\\popup_scroll_clean.png",
+  "popup_width": 560,
+  "popup_height": 420,
+  "popup_left_margin": 24,
+  "popup_top_margin": 250,
+  "notifications": {
+    "enabled": true,
+    "sound": false
+  },
+  "clock_setup_completed": false,
+  "clock_region": {}
+}

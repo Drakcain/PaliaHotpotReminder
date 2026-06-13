@@ -1,0 +1,7 @@
+mss
+pillow
+pytesseract
+winotify
+pyinstaller
+pystray
+psutil

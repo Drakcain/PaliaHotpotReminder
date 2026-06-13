@@ -1,0 +1,28 @@
+# Build and release outputs
+dist/
+build/
+pyinstaller-build/
+*.spec
+
+# Python cache and environments
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Logs and local diagnostics
+logs/
+*.log
+debug/
+debug_reports/
+*.tmp
+
+# Local runtime state and personal config
+config/settings.json
+config/recall_state.json
+recall_state.json
+
+# OS/editor noise
+desktop.ini
+.DS_Store
