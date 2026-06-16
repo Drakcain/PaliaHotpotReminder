@@ -30,6 +30,22 @@ No manual folder copying is required.
 - Supports tray behavior, startup options, Smart Resume, and safe local recall.
 - Stays single-instance so duplicate launches do not stack.
 
+## Screenshots
+
+The screenshots below show the fixed-window v3.1.1 interface and the six main HPR pages.
+
+| Dashboard | Clock Setup |
+|---|---|
+| ![Dashboard page showing HPR overview cards](docs/screenshots/dashboard.png) | ![Clock Setup page showing OCR and clock region tools](docs/screenshots/clock-setup.png) |
+
+| Reminders | Automation |
+|---|---|
+| ![Reminders page showing reminder controls and rules](docs/screenshots/reminders.png) | ![Automation page showing startup and tray options](docs/screenshots/automation.png) |
+
+| Diagnostics | Settings |
+|---|---|
+| ![Diagnostics page showing support and activity details](docs/screenshots/diagnostics.png) | ![Settings page showing release info and safety boundary](docs/screenshots/settings.png) |
+
 ## Install
 1. Open the latest GitHub Release.
 2. Download `PaliaHotpotReminder-Setup-v3.1.1.exe`.
