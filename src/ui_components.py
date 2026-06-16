@@ -4,6 +4,13 @@ from typing import Callable, Optional
 
 import customtkinter as ctk
 
+from theme import (
+    STATUS_CHIP_CORNER_RADIUS,
+    STATUS_CHIP_HEIGHT,
+    STATUS_CHIP_PAD_X,
+    STATUS_CHIP_PAD_Y,
+)
+
 
 def card(parent, title: str, *, colors: dict[str, str], columns: int = 1):
     frame = ctk.CTkFrame(
@@ -51,7 +58,8 @@ class StatusChip(ctk.CTkFrame):
             fg_color=colors["field_bg"],
             border_color=colors["border"],
             border_width=1,
-            corner_radius=999,
+            corner_radius=STATUS_CHIP_CORNER_RADIUS,
+            height=STATUS_CHIP_HEIGHT,
         )
         self.colors = colors
         self.label = ctk.CTkLabel(
@@ -60,7 +68,7 @@ class StatusChip(ctk.CTkFrame):
             text_color=colors["text_fg"],
             font=ctk.CTkFont(size=12, weight="bold"),
         )
-        self.label.pack(padx=12, pady=5)
+        self.label.pack(padx=STATUS_CHIP_PAD_X, pady=STATUS_CHIP_PAD_Y)
 
     def set_state(self, label: str, state: str = "neutral") -> None:
         color_map = {

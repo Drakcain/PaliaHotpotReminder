@@ -1,16 +1,17 @@
 # UI Roadmap
 
-This document tracks the current HPR UI rules and the v3.1 modular
+This document tracks the current HPR UI rules and the v3.1.1 fixed-window modular
 CustomTkinter direction.
 
 ## Current UI State
 
-- Production UI is Python with a modular CustomTkinter runtime shell.
+- Production UI is Python with a fixed-size modular CustomTkinter runtime shell.
 - Styling is centralized through `src\theme.py`.
 - `src\ui.py` is the coordinator/controller and should not own large layout
   blocks.
 - `src\ui_shell.py` owns the app shell, header, sidebar, page container, and
   active page switching.
+- The main window is fixed-size and should not be user-resizable.
 - `src\ui_pages\` owns the focused section page layouts.
 - `src\ui_state.py` owns UI-only display/activity state.
 - `src\ui_actions.py` owns thin UI callback wrappers around existing app
@@ -64,7 +65,7 @@ Future visual reference:
 - https://customtkinter.tomschimansky.com/documentation/
 - https://github.com/TomSchimansky/CustomTkinter/blob/master/documentation_images/complex_example_dark_Windows.png
 
-The v3.1 direction is a black/purple desktop dashboard inspired by the official
+The v3.1.1 direction is a black/purple desktop dashboard inspired by the official
 CustomTkinter complex example and the user's black/purple VS Code workspace:
 
 - persistent left navigation

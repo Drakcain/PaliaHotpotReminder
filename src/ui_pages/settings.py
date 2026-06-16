@@ -22,8 +22,10 @@ def build_settings_page(parent, app, colors: dict[str, str]) -> None:
     app._add_switch(window, "Start hidden in tray", app.start_minimized_var, 1, 1)
     app._add_switch(window, "Minimize to tray", app.minimize_to_tray_var, 2, 0)
     app._add_switch(window, "Close to tray", app.close_to_tray_var, 2, 1)
-    button(window, "Show Window", app._show_from_tray, colors=colors).grid(row=3, column=0, sticky="ew", padx=16, pady=(10, 14))
-    button(window, "Reload Settings", app.ui_actions.reload_settings, colors=colors).grid(row=3, column=1, sticky="ew", padx=(8, 16), pady=(10, 14))
+    app._add_display_row(window, "Tray", app.tray_state_var, 3)
+    app._add_display_row(window, "Debug log", app.debug_log_state_var, 4)
+    button(window, "Show Window", app._show_from_tray, colors=colors).grid(row=5, column=0, sticky="ew", padx=16, pady=(10, 14))
+    button(window, "Reload Settings", app.ui_actions.reload_settings, colors=colors).grid(row=5, column=1, sticky="ew", padx=(8, 16), pady=(10, 14))
 
     release = card(parent, "Release Info", colors=colors, columns=2)
     release.grid(row=0, column=1, sticky="nsew", padx=(8, 0), pady=8)
@@ -32,6 +34,7 @@ def build_settings_page(parent, app, colors: dict[str, str]) -> None:
     _add_info(release, "Install path", r"C:\Tools\PaliaHotpotReminder", 3, colors)
     _add_info(release, "Signing", "Unsigned unless a future signing pass is completed.", 4, colors)
     _add_info(release, "Verification", "Verify the installer SHA from GitHub Releases before install.", 5, colors)
+    _add_info(release, "Support path", "Diagnostics > Debug / Support exports the current report and logs.", 6, colors)
 
     about = card(parent, "About HPR", colors=colors, columns=2)
     about.grid(row=1, column=0, columnspan=2, sticky="nsew", pady=8)
@@ -54,6 +57,7 @@ def build_settings_page(parent, app, colors: dict[str, str]) -> None:
     _add_info(about, "Support", "Use Diagnostics > Debug / Support for support bundles and logs.", 5, colors)
     _add_info(about, "Repository", "GitHub: Drakcain/PaliaHotpotReminder", 6, colors)
     _add_info(about, "Affiliation", "Not affiliated with Palia, Singularity 6, Daybreak, or the official game client.", 7, colors)
+    _add_info(about, "Installed mode", "Primary release path is the installer, with data kept local on the machine after setup.", 8, colors)
 
     safety = card(parent, "Safety Boundary", colors=colors, columns=2)
     safety.grid(row=2, column=0, columnspan=2, sticky="nsew", pady=8)

@@ -7,7 +7,7 @@ Set-StrictMode -Version Latest
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 Set-Location $repoRoot
 
-$version = '3.1'
+$version = '3.1.1'
 $buildRoot = Join-Path $repoRoot 'build'
 $payloadRoot = Join-Path $buildRoot 'installer-payload'
 $pyiDist = Join-Path $buildRoot 'pyinstaller-dist'
@@ -46,6 +46,27 @@ function Remove-PathIfExists {
     if (Test-Path -LiteralPath $Path) {
         Remove-Item -LiteralPath $Path -Recurse -Force
     }
+}
+
+function Get-IcoSizes {
+    param([Parameter(Mandatory = $true)][string]$Path)
+    $bytes = [System.IO.File]::ReadAllBytes($Path)
+    if ($bytes.Length -lt 6) {
+        throw "ICO file too small: $Path"
+    }
+    $count = [BitConverter]::ToUInt16($bytes, 4)
+    $sizes = New-Object System.Collections.Generic.List[string]
+    $offset = 6
+    for ($i = 0; $i -lt $count; $i++) {
+        if ($offset + 15 -ge $bytes.Length) {
+            throw "ICO directory entry truncated in $Path"
+        }
+        $width = if ($bytes[$offset] -eq 0) { 256 } else { [int]$bytes[$offset] }
+        $height = if ($bytes[$offset + 1] -eq 0) { 256 } else { [int]$bytes[$offset + 1] }
+        $sizes.Add(("{0}x{1}" -f $width, $height)) | Out-Null
+        $offset += 16
+    }
+    return $sizes
 }
 
 function Invoke-Py312 {
@@ -103,6 +124,13 @@ Assert-PathExists -Path $installerScript -Message "Missing installer script: $in
 Assert-PathExists -Path $tesseractSource -Message "Missing local Tesseract folder: $tesseractSource"
 Assert-PathExists -Path (Join-Path $tesseractSource 'tesseract.exe') -Message "Missing tesseract.exe in $tesseractSource"
 Assert-PathExists -Path (Join-Path $tesseractSource 'tessdata\eng.traineddata') -Message "Missing tessdata\eng.traineddata in $tesseractSource"
+$iconSizes = Get-IcoSizes -Path $iconPath
+foreach ($requiredSize in @('16x16', '24x24', '32x32', '48x48', '64x64', '128x128', '256x256')) {
+    if ($iconSizes -notcontains $requiredSize) {
+        throw "App icon is missing required embedded ICO size: $requiredSize"
+    }
+}
+Write-Host "App icon sizes: $($iconSizes -join ', ')"
 
 Write-Step 'Installing/verifying Python requirements'
 $pythonPackages = @(

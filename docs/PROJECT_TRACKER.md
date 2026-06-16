@@ -1,5 +1,16 @@
 # Project Tracker
 
+## v3.1.1 Fixed-Window UI Polish
+
+- Locked HPR into a fixed-size desktop window.
+- Used Clock Setup as the sizing guide for the final shell dimensions.
+- Kept full page content visible without relying on a visible full-page
+  scrollbar in the fixed-window smoke check.
+- Compacted top status chip wording so the header no longer shows clipped `...`.
+- Preserved the v3.1 modular UI architecture and the installer close-running-HPR
+  upgrade fix.
+- Target artifact is `PaliaHotpotReminder-Setup-v3.1.1.exe`.
+
 ## v3.1 Modular CustomTkinter UI Architecture
 
 - Checkpointed the successful v3.0 CustomTkinter shell before refactoring.
@@ -66,7 +77,7 @@
 - Did not add a root `LICENSE`; project license choice remains a required owner decision.
 
 ## Current Task
-The active pass is `v3.1`: modular CustomTkinter UI architecture with real sidebar page navigation. Smart Resume, safe local Smart Recall, tray/refocus recovery, Start Reminder/Test Clock preflight, Debug / Support finalization, and asynchronous cancellable Setup Clock remain protected.
+The active pass is `v3.1.1`: fixed-window UI polish on top of the released v3.1 modular CustomTkinter architecture. Smart Resume, safe local Smart Recall, tray/refocus recovery, Start Reminder/Test Clock preflight, Debug / Support finalization, and asynchronous cancellable Setup Clock remain protected.
 
 ## v2.9 Installer Behavior
 - Added an Inno Setup installer wizard targeting `C:\Tools\PaliaHotpotReminder`.

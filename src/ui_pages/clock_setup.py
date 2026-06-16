@@ -5,6 +5,16 @@ import customtkinter as ctk
 from ui_components import button, card
 
 
+def _note(parent, text: str, row: int, colors: dict[str, str]) -> None:
+    ctk.CTkLabel(
+        parent,
+        text=text,
+        text_color=colors["muted_fg"],
+        justify="left",
+        wraplength=520,
+    ).grid(row=row, column=0, columnspan=2, sticky="w", padx=16, pady=(2, 14))
+
+
 def build_clock_setup_page(parent, app, colors: dict[str, str]) -> None:
     parent.grid_columnconfigure((0, 1), weight=1, uniform="clock")
 
@@ -50,6 +60,13 @@ def build_clock_setup_page(parent, app, colors: dict[str, str]) -> None:
         ("Taller +10", lambda: app._nudge("height", 10)),
         ("Shorter -10", lambda: app._nudge("height", -10)),
     ])
+    ctk.CTkLabel(
+        nudge,
+        text="Use small moves for cleanup and big moves when the initial scan lands far from the live clock.",
+        text_color=colors["muted_fg"],
+        justify="left",
+        wraplength=520,
+    ).grid(row=4, column=0, sticky="w", padx=16, pady=(8, 14))
 
     ocr = card(parent, "OCR Validation", colors=colors, columns=2)
     ocr.grid(row=1, column=1, sticky="nsew", padx=(8, 0), pady=8)

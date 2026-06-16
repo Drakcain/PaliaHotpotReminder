@@ -5,6 +5,16 @@ import customtkinter as ctk
 from ui_components import button, card
 
 
+def _note(parent, text: str, row: int, colors: dict[str, str], wraplength: int = 860) -> None:
+    ctk.CTkLabel(
+        parent,
+        text=text,
+        text_color=colors["muted_fg"],
+        justify="left",
+        wraplength=wraplength,
+    ).grid(row=row, column=0, columnspan=2, sticky="w", padx=16, pady=(2, 14))
+
+
 def build_diagnostics_page(parent, app, colors: dict[str, str]) -> None:
     parent.grid_columnconfigure((0, 1), weight=1, uniform="diagnostics")
 
@@ -24,6 +34,12 @@ def build_diagnostics_page(parent, app, colors: dict[str, str]) -> None:
         ("Open latest.log", app._open_latest_log),
     )):
         button(support, text, command, colors=colors).grid(row=5 + index // 2, column=index % 2, sticky="ew", padx=16, pady=4)
+    _note(
+        support,
+        "Debug Report is the operator summary. Export keeps a local file, while Copy places the current report on the clipboard for fast support handoff.",
+        8,
+        colors,
+    )
 
     system = card(parent, "System Status", colors=colors, columns=2)
     system.grid(row=0, column=1, sticky="nsew", padx=(8, 0), pady=8)
@@ -34,6 +50,14 @@ def build_diagnostics_page(parent, app, colors: dict[str, str]) -> None:
     app._add_display_row(system, "Tesseract", app.tesseract_var, 5)
     app._add_display_row(system, "Setup", app.setup_state_var, 6)
     app._add_display_row(system, "Tray", app.tray_state_var, 7)
+    app._add_display_row(system, "Readiness", app.readiness_var, 8)
+    _note(
+        system,
+        "System Status shows whether HPR can see the screen, trust the selected region, and resolve OCR with the bundled or configured Tesseract path.",
+        9,
+        colors,
+        wraplength=520,
+    )
 
     activity = card(parent, "Full Recent Activity", colors=colors, columns=1)
     activity.grid(row=1, column=0, sticky="nsew", padx=(0, 8), pady=8)
@@ -60,6 +84,13 @@ def build_diagnostics_page(parent, app, colors: dict[str, str]) -> None:
         ("Open Screen Diagnostic", app._open_screen_diagnostic),
     )):
         button(details, text, command, colors=colors).grid(row=1 + index // 2, column=index % 2, sticky="ew", padx=16, pady=4)
+    _note(
+        details,
+        "Use copy actions when a single subsystem is suspect. Use popup tests when reminder timing is fine but delivery style or asset placement looks wrong.",
+        4,
+        colors,
+        wraplength=520,
+    )
 
     app.advanced_frame = ctk.CTkFrame(parent, fg_color="transparent")
     app.advanced_frame.grid(row=2, column=0, columnspan=2, sticky="ew", pady=8)
@@ -79,3 +110,5 @@ def build_diagnostics_page(parent, app, colors: dict[str, str]) -> None:
     app._add_display_row(reminder, "Clock setup", app.clock_setup_state_var, 3)
     app._add_display_row(reminder, "Reminder status", app.reminder_status_var, 4)
     app._add_display_row(reminder, "Reminder details", app.reminder_diagnostic_var, 5)
+    app._add_display_row(reminder, "Next target", app.next_reminder_target_var, 6)
+    app._add_display_row(reminder, "Last fired", app.last_reminder_fired_var, 7)

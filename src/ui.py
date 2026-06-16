@@ -39,7 +39,7 @@ from smart_recall import RECALL_PATH, load_recall_state, save_recall_state
 from smart_resume import SmartResumeResult, evaluate_smart_resume
 from state import PaliaTimeTracker, TrackerSnapshot
 from paths import resolve_resource_path
-from theme import THEMES
+from theme import APP_HEIGHT, APP_WIDTH, DISPLAY_WRAP, THEMES
 from ui_actions import UIActions
 from ui_components import StatusChip, button, switch
 from ui_pages import PAGE_BUILDERS
@@ -143,7 +143,7 @@ class PaliaHotpotReminderUI:
     def __init__(self, root: tk.Tk) -> None:
         self.root = root
         self.root.title(f"Palia Hotpot Reminder {APP_VERSION}")
-        self.root.geometry("1080x760")
+        self.root.geometry(f"{APP_WIDTH}x{APP_HEIGHT}")
         self._set_window_icon()
         self.settings = load_settings()
         self.log_path = initialize_logging(bool(self.settings.get("debug_logging", True)), bool(self.settings.get("debug_verbose", False)))
@@ -279,13 +279,22 @@ class PaliaHotpotReminderUI:
 
     def _set_window_icon(self) -> None:
         icon_path = resolve_resource_path(r"assets\App Icon\HPR_Icon.ico")
+        taskbar_png = resolve_resource_path(r"assets\App Icon\HPR_Icon_Taskbar.png")
+        icon_png = resolve_resource_path(r"assets\App Icon\HPR_Icon.png")
+        try:
+            preferred_png = taskbar_png if taskbar_png.exists() else icon_png
+            if preferred_png.exists():
+                icon_image = tk.PhotoImage(file=str(preferred_png))
+                self.root.iconphoto(True, icon_image)
+                self.root._icon_image = icon_image  # type: ignore[attr-defined]
+        except Exception:
+            pass
         if not icon_path.exists():
             return
         try:
             self.root.iconbitmap(default=str(icon_path))
         except Exception:
             try:
-                icon_png = resolve_resource_path(r"assets\App Icon\HPR_Icon.png")
                 if icon_png.exists():
                     icon_image = tk.PhotoImage(file=str(icon_png))
                     self.root.iconphoto(True, icon_image)
@@ -487,7 +496,7 @@ class PaliaHotpotReminderUI:
             textvariable=variable,
             anchor="w",
             justify="left",
-            wraplength=440,
+            wraplength=DISPLAY_WRAP,
             text_color=colors["text_fg"],
         ).grid(row=row, column=1, sticky="ew", padx=(8, 16), pady=4)
 
@@ -497,7 +506,7 @@ class PaliaHotpotReminderUI:
         row.grid(sticky="ew", padx=16, pady=4)
         ctk.CTkLabel(row, text=title, width=80, anchor="w", text_color=colors["muted_fg"]).pack(side="left", padx=(0, 8))
         for label, command in buttons:
-            button(row, label, command, colors=colors, width=88).pack(side="left", padx=2)
+            button(row, label, command, colors=colors, width=76).pack(side="left", padx=2)
 
     def _add_switch(
         self,
@@ -544,14 +553,35 @@ class PaliaHotpotReminderUI:
         clock_text = self.clock_setup_state_var.get()
         if self.palia_chip is not None:
             palia_state = "good" if "Game detected" in palia_text else ("info" if "Launcher" in palia_text else "warning")
-            self.palia_chip.set_state(f"Palia: {palia_text}", palia_state)
+            self.palia_chip.set_state(self._compact_palia_chip_text(palia_text), palia_state)
         if self.reminder_chip is not None:
             lower = reminder_text.lower()
             reminder_state = "good" if "running" in lower or "active" in lower else ("error" if "failed" in lower or "stopped" in lower else "warning")
-            self.reminder_chip.set_state(f"Reminder: {reminder_text}", reminder_state)
+            self.reminder_chip.set_state(self._compact_reminder_chip_text(reminder_text), reminder_state)
         if self.clock_chip is not None:
             clock_state = "good" if "Ready" in clock_text else "warning"
-            self.clock_chip.set_state(f"Clock: {clock_text}", clock_state)
+            self.clock_chip.set_state(self._compact_clock_chip_text(clock_text), clock_state)
+
+    def _compact_palia_chip_text(self, value: str) -> str:
+        lower = str(value).strip().lower()
+        if "game detected" in lower:
+            return "Palia: Online"
+        if "launcher" in lower:
+            return "Palia: Launcher"
+        return "Palia: Offline"
+
+    def _compact_reminder_chip_text(self, value: str) -> str:
+        lower = str(value).strip().lower()
+        if "running" in lower or "active" in lower:
+            return "Reminder: Running"
+        if "failed" in lower:
+            return "Reminder: Failed"
+        if "stopped" in lower:
+            return "Reminder: Stopped"
+        return "Reminder: Waiting"
+
+    def _compact_clock_chip_text(self, value: str) -> str:
+        return "Clock: Ready" if "ready" in str(value).strip().lower() else "Clock: Needed"
 
     def _refresh_from_settings(self, reload_from_disk: bool = True) -> None:
         if reload_from_disk:

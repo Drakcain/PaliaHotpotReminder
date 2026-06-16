@@ -17,12 +17,32 @@ from smart_resume import NEEDS_SETUP, PALIA_NOT_OPEN, READY, evaluate_smart_resu
 from ui import PaliaHotpotReminderUI
 
 
+def get_ico_sizes(path: Path) -> list[str]:
+    data = path.read_bytes()
+    if len(data) < 6:
+        return []
+    count = int.from_bytes(data[4:6], "little")
+    sizes: list[str] = []
+    offset = 6
+    for _ in range(count):
+        if offset + 16 > len(data):
+            break
+        width = data[offset] or 256
+        height = data[offset + 1] or 256
+        sizes.append(f"{width}x{height}")
+        offset += 16
+    return sizes
+
+
 def run_self_test() -> int:
     settings = load_settings()
+    icon_path = resolve_resource_path(r"assets\App Icon\HPR_Icon.ico")
+    icon_source_path = resolve_resource_path(r"assets\App Icon\HPR_Icon_Source_OG.png")
     checks = [
         ("app_root", str(get_app_root())),
         ("source_root", str(get_source_root())),
-        ("icon", str(resolve_resource_path(r"assets\App Icon\HPR_Icon.ico"))),
+        ("icon", str(icon_path)),
+        ("icon_source", str(icon_source_path)),
         ("popup", str(resolve_resource_path(r"assets\Message Board\popup_scroll_clean.png"))),
     ]
     ok, msg, output, tessdata = preflight_tesseract(settings)
@@ -36,6 +56,7 @@ def run_self_test() -> int:
     print(f"SELF_TEST: eng_present={'eng' in output}")
     print(f"SELF_TEST: config_loaded={bool(settings)}")
     print(f"SELF_TEST: clock_region={settings.get('clock_region')}")
+    print(f"SELF_TEST: icon_sizes={get_ico_sizes(icon_path)}")
     parser_cases = [
         ("10:05 PM", "10:05 PM"),
         ("10:59 PM", "10:59 PM"),

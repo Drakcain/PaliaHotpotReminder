@@ -26,11 +26,11 @@ The `Mods` folder is an organizational label only and does not imply game modifi
 
 ## Distribution
 - Installer-first.
-- Primary release artifact: `PaliaHotpotReminder-Setup-v3.1.exe`.
+- Primary release artifact: `PaliaHotpotReminder-Setup-v3.1.1.exe`.
 - No portable ZIP release path.
 
 ## Current UI Direction
-- Modular CustomTkinter runtime shell.
+- Fixed-size modular CustomTkinter runtime shell.
 - High-Contrast Black + Purple visual style.
 - OCR/reminder/process-watcher behavior remains unchanged.
 

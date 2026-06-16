@@ -28,6 +28,13 @@ def _generate_fallback_icon():
     return image
 
 
+def _load_rgba_image(path: Path):
+    if Image is None:
+        return None
+    with Image.open(path) as image:
+        return image.convert("RGBA")
+
+
 def tray_available() -> bool:
     return pystray is not None and Image is not None
 
@@ -94,11 +101,31 @@ class TrayManager:
         return True
 
     def _load_icon_image(self):
-        if self.icon_path is not None and self.icon_path.exists():
-            try:
-                return Image.open(self.icon_path)
-            except Exception:
-                self.logger.warning("Tray icon file invalid: %s", self.icon_path)
+        if self.icon_path is not None:
+            candidates = []
+            if self.icon_path.exists():
+                candidates.append(self.icon_path)
+            if self.icon_path.suffix.lower() == ".ico":
+                candidates = [
+                    self.icon_path.with_name("HPR_Icon_Taskbar.png"),
+                    self.icon_path.with_name("HPR_Icon_Source_OG.png"),
+                    self.icon_path.with_name("HPR_Icon.png"),
+                    *candidates,
+                ]
+            for candidate in candidates:
+                if not candidate.exists():
+                    continue
+                try:
+                    image = _load_rgba_image(candidate)
+                    if image is None:
+                        continue
+                    if candidate.suffix.lower() == ".png" and candidate.name == "HPR_Icon_Taskbar.png":
+                        return image.resize((64, 64), Image.Resampling.LANCZOS)
+                    # Notification-area icons render best from a clean square bitmap
+                    # instead of relying on implicit ICO frame selection.
+                    return image.resize((64, 64), Image.Resampling.LANCZOS)
+                except Exception:
+                    self.logger.warning("Tray icon file invalid: %s", candidate)
         return _generate_fallback_icon()
 
     def _dispatch(self, callback: Callable[[], None]) -> None:

@@ -1,5 +1,23 @@
 # Changelog
 
+## v3.1.1
+
+### Fixed-Window UI Polish
+
+- Locked HPR to a fixed-size desktop window and disabled resizing.
+- Sized the shell around the Clock Setup page, which remains the densest page.
+- Tightened the header layout so status chips stay readable without `...`.
+- Switched chip display text to compact UI labels such as `Palia: Offline`,
+  `Reminder: Waiting`, and `Clock: Needed`.
+- Kept the modular v3.1 CustomTkinter architecture intact.
+- Preserved OCR, reminder timing, process watching, tray behavior, startup
+  behavior, and installer close-running-HPR logic.
+
+### Distribution
+
+- Primary release artifact is `PaliaHotpotReminder-Setup-v3.1.1.exe`.
+- Checksum artifact is `PaliaHotpotReminder-Setup-v3.1.1.exe.sha256`.
+
 ## v3.1
 
 ### Modular UI Architecture

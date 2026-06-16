@@ -5,6 +5,7 @@ from collections.abc import Callable
 import customtkinter as ctk
 
 from app_version import APP_VERSION
+from theme import APP_HEIGHT, APP_WIDTH, HEADER_BOTTOM_PAD, SHELL_PAD, SIDEBAR_WIDTH
 from ui_components import StatusChip, section_header, sidebar_button
 
 
@@ -17,7 +18,7 @@ class UIShell:
         self.app = app
         self.colors = colors
         self.builders = builders
-        self.pages: dict[str, ctk.CTkScrollableFrame] = {}
+        self.pages: dict[str, ctk.CTkFrame] = {}
         self.sidebar_buttons: dict[str, ctk.CTkButton] = {}
         self.page_container = None
         self.current_page = ""
@@ -25,8 +26,10 @@ class UIShell:
     def build(self) -> None:
         ctk.set_appearance_mode("dark" if self.app._current_theme_name() == "dark" else "light")
         ctk.set_default_color_theme("dark-blue")
-        self.root.minsize(1120, 760)
-        self.root.resizable(True, True)
+        self.root.geometry(f"{APP_WIDTH}x{APP_HEIGHT}")
+        self.root.minsize(APP_WIDTH, APP_HEIGHT)
+        self.root.maxsize(APP_WIDTH, APP_HEIGHT)
+        self.root.resizable(False, False)
 
         self.shell = ctk.CTkFrame(self.root, fg_color=self.colors["root_bg"], corner_radius=0)
         self.shell.pack(fill="both", expand=True)
@@ -40,7 +43,7 @@ class UIShell:
     def _build_sidebar(self) -> None:
         sidebar = ctk.CTkFrame(
             self.shell,
-            width=208,
+            width=SIDEBAR_WIDTH,
             fg_color=self.colors["section_bg"],
             border_color=self.colors["border"],
             border_width=1,
@@ -84,12 +87,12 @@ class UIShell:
 
     def _build_main(self) -> None:
         main = ctk.CTkFrame(self.shell, fg_color=self.colors["root_bg"], corner_radius=0)
-        main.grid(row=0, column=1, sticky="nsew", padx=18, pady=18)
+        main.grid(row=0, column=1, sticky="nsew", padx=SHELL_PAD, pady=SHELL_PAD)
         main.grid_rowconfigure(1, weight=1)
         main.grid_columnconfigure(0, weight=1)
 
         header = ctk.CTkFrame(main, fg_color="transparent")
-        header.grid(row=0, column=0, sticky="ew", pady=(0, 14))
+        header.grid(row=0, column=0, sticky="ew", pady=(0, HEADER_BOTTOM_PAD))
         header.grid_columnconfigure(0, weight=1)
         title = section_header(
             header,
@@ -100,8 +103,8 @@ class UIShell:
         title.grid(row=0, column=0, sticky="w")
 
         chips = ctk.CTkFrame(header, fg_color="transparent")
-        chips.grid(row=0, column=1, sticky="e")
-        self.app.palia_chip = StatusChip(chips, "Palia: Not Detected", colors=self.colors)
+        chips.grid(row=1, column=0, sticky="w", pady=(10, 0))
+        self.app.palia_chip = StatusChip(chips, "Palia: Offline", colors=self.colors)
         self.app.palia_chip.pack(side="left", padx=(0, 8))
         self.app.reminder_chip = StatusChip(chips, "Reminder: Waiting", colors=self.colors)
         self.app.reminder_chip.pack(side="left", padx=(0, 8))
@@ -114,12 +117,11 @@ class UIShell:
         self.page_container.grid_columnconfigure(0, weight=1)
 
         for name in PAGE_NAMES:
-            page = ctk.CTkScrollableFrame(
+            page = ctk.CTkFrame(
                 self.page_container,
                 fg_color=self.colors["root_bg"],
-                scrollbar_button_color=self.colors["accent_dark"],
-                scrollbar_button_hover_color=self.colors["accent_fg"],
             )
+            page.grid_anchor("n")
             page.grid_columnconfigure((0, 1), weight=1, uniform="cards")
             self.builders[name](page, self.app, self.colors)
             self.pages[name] = page
