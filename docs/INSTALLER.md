@@ -22,6 +22,31 @@ Main executable:
 C:\Tools\PaliaHotpotReminder\Hotpot-Remind.exe
 ```
 
+## Windows Admin / UAC Behavior
+
+HPR installs to:
+
+```text
+C:\Tools\PaliaHotpotReminder
+```
+
+Because this is a machine-level install location, the installer intentionally
+requires administrator permission.
+
+On stock Windows, users should normally see a standard Windows UAC prompt during
+install or upgrade.
+
+On Ghost Spectre, debloated, or heavily customized Windows builds, UAC behavior
+may vary depending on system policy. A customized system may auto-elevate,
+suppress prompts, or show different security behavior.
+
+HPR does not disable, bypass, or modify UAC. It follows the Windows elevation
+rules already configured on the machine.
+
+The post-install launch step normally runs in the user context when Windows
+allows it, but already-elevated or customized environments may behave
+differently.
+
 ## Shortcuts
 - Start Menu folder: `Palia Hotpot Reminder`
 - Start Menu shortcut: `Palia Hotpot Reminder`

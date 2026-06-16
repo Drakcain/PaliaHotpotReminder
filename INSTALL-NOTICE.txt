@@ -14,6 +14,18 @@ C:\Tools\PaliaHotpotReminder
 Setup may request administrator approval through Windows UAC because the app is
 installed under C:\Tools. This is expected.
 
+Windows Admin / UAC Notice
+
+On normal stock Windows installs, this usually appears as a standard Windows UAC
+prompt during install or upgrade.
+
+On Ghost Spectre, debloated, or customized Windows builds, UAC behavior may look
+different depending on how that system was configured. Some systems may
+auto-elevate, suppress prompts, or show different security behavior.
+
+HPR does not disable, bypass, or modify UAC. It follows the Windows elevation
+policy already configured on the machine.
+
 PaliaHotpotReminder does not modify Palia, edit game files, read game memory,
 inject code, hook the game process, inspect network traffic, or automate
 gameplay. It only reads the user-selected visible clock region on the screen
