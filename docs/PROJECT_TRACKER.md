@@ -1,5 +1,27 @@
 # Project Tracker
 
+## v2.9 Professional Repo Alignment
+
+- Added BD-AUTO-style root docs for installed-first release hygiene:
+  - `BUILD.md`
+  - `INSTALL-NOTICE.txt`
+  - `SECURITY.md`
+  - `SIGNING.md`
+  - `THIRD-PARTY-NOTICES.md`
+  - `VERSION`
+- Added lightweight GitHub issue templates under `.github\ISSUE_TEMPLATE`.
+- Updated installer script to show `INSTALL-NOTICE.txt` before install.
+- Updated installer script to install `INSTALL-NOTICE.txt`, `THIRD-PARTY-NOTICES.md`, `SIGNING.md`, and `VERSION`.
+- Added Start Menu links for third-party notices and signing/Windows warning documentation.
+- Strengthened `scripts\Test-Repo.ps1` to validate professional repo files, installed-first language, installer notice/doc wiring, and safety-boundary claims.
+- Preserved the HPR safety boundary:
+  - no game memory reading
+  - no injection or hooking
+  - no network inspection
+  - no gameplay automation
+  - OCR selected screen region only
+- Did not add a root `LICENSE`; project license choice remains a required owner decision.
+
 ## Current Task
 The active pass is `v2.9`: installed-first release support for `C:\Tools\PaliaHotpotReminder`, modeled after the BD-AUTO installer workflow. Smart Resume, safe local Smart Recall, tray/refocus recovery, Start Reminder/Test Clock preflight, Debug / Support finalization, and asynchronous cancellable Setup Clock remain protected.
 
@@ -138,7 +160,7 @@ changed for that research. See `docs/CUSTOMTKINTER_MODERNIZATION_PLAN.md`.
 - A GUI smoke test confirmed the custom popup opens with the cleaned artwork asset and auto-closes successfully.
 - A code-path validation of the 5:45 PM reminder branch confirmed one fire followed by cooldown suppression with the new diagnostics.
 - Custom reminder text now exists for `5:45 PM`, `6:00 PM`, `12:00 AM`, `2:50 AM`, and `3:00 AM`.
-- The installer build script now verifies Python 3.12, installs requirements, verifies bundled Tesseract, builds an onedir EXE, and stages an Inno payload.
+- The installer build script now verifies Python 3.12, installs the explicit build/runtime Python package list, verifies bundled Tesseract, builds an onedir EXE, and stages an Inno payload.
 - The installer build script now builds the EXE in `--windowed` mode to avoid the black console window.
 - Added an Inno Setup installer for `C:\Tools\PaliaHotpotReminder`.
 - The installer payload now rewrites the visible release EXE name to `Hotpot-Remind.exe` and updates the root icon name to match.

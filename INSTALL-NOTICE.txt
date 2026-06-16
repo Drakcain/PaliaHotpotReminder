@@ -1,0 +1,33 @@
+PaliaHotpotReminder - IMPORTANT NOTICE
+
+Current release: v2.9
+
+PaliaHotpotReminder is an independent external helper utility for Palia Hotpot.
+It is not affiliated with, authorized by, sponsored by, or endorsed by Palia,
+Singularity 6, Daybreak Game Company, Inno Setup, Tesseract OCR, Python, or any
+third-party dependency author.
+
+The installer targets:
+
+C:\Tools\PaliaHotpotReminder
+
+Setup may request administrator approval through Windows UAC because the app is
+installed under C:\Tools. This is expected.
+
+PaliaHotpotReminder does not modify Palia, edit game files, read game memory,
+inject code, hook the game process, inspect network traffic, or automate
+gameplay. It only reads the user-selected visible clock region on the screen
+through screen capture and OCR.
+
+The installer may preserve runtime user data during upgrade or uninstall/reinstall
+flows, including:
+
+- config\settings.json
+- config\recall_state.json
+- logs\
+- debug\
+- exports\
+
+Current release installers are unsigned unless the specific release notes state
+otherwise. Windows SmartScreen may show a warning. Verify the SHA-256 checksum
+published with the GitHub Release before installing.

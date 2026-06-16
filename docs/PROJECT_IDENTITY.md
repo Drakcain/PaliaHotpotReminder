@@ -23,3 +23,11 @@ The `Mods` folder is an organizational label only and does not imply game modifi
 
 ## Installer Target
 `C:\Tools\PaliaHotpotReminder`
+
+## Distribution
+- Installer-first.
+- Primary release artifact: `PaliaHotpotReminder-Setup-v2.9.exe`.
+- No portable ZIP release path.
+
+## Affiliation
+PaliaHotpotReminder is unofficial and not affiliated with Palia, Singularity 6, or Daybreak Game Company.

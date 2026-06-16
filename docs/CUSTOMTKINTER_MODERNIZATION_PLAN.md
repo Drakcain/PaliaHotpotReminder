@@ -141,9 +141,8 @@ The prototype should:
 - demonstrate both dark and light appearance modes
 - demonstrate 100%, 125%, and 150% Windows scaling
 
-Do not add `customtkinter` to production `requirements.txt` during the visual
-prototype. Use a prototype-specific requirements file until migration is
-approved.
+Do not add `customtkinter` to the production dependency list during the visual
+prototype. Use prototype-specific setup notes until migration is approved.
 
 ## Migration Strategy
 

@@ -43,12 +43,12 @@ Project root:`n- `C:\GITHUB BUILDS\PC Game Tools\Mods\PaliaHotpotReminder`
 
 Created files:
 - `README.md`
-- `requirements.txt`
+- build/runtime dependency list in `README.md` and `scripts/build_installer.ps1`
 - `config/settings.example.json`
 - `docs/GPT_Handoff_Report.md`
 - `src/` (empty scaffold)
 
-Dependencies pinned for first pass (in requirements):
+Dependencies used for first pass:
 - `mss` (screen capture)
 - `pillow` (image prep)
 - `pytesseract` (OCR binding)

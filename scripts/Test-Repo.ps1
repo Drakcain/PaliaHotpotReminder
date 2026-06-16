@@ -31,8 +31,15 @@ function Test-UntrackedRuntimePath {
 
 Write-Host '==> Checking required repository files' -ForegroundColor Cyan
 foreach ($path in @(
+    'BUILD.md',
+    'INSTALL-NOTICE.txt',
+    'SECURITY.md',
+    'SIGNING.md',
+    'THIRD-PARTY-NOTICES.md',
+    'VERSION',
     'README.md',
-    'requirements.txt',
+    '.github\ISSUE_TEMPLATE\bug_report.md',
+    '.github\ISSUE_TEMPLATE\config.yml',
     'src',
     'assets',
     'assets\App Icon\HPR_Icon.ico',
@@ -46,6 +53,9 @@ foreach ($path in @(
     'installer\README.md',
     'installer\assets',
     'docs\INSTALLER.md',
+    'docs\GITHUB_RELEASE_CHECKLIST.md',
+    'docs\PROJECT_IDENTITY.md',
+    'docs\PROJECT_TRACKER.md',
     'docs\RELEASE-NOTES-v2.9.md',
     'config\settings.example.json'
 )) {
@@ -64,13 +74,28 @@ foreach ($path in @(
     Test-UntrackedRuntimePath $path
 }
 
+Write-Host '==> Checking removed root clutter stays removed' -ForegroundColor Cyan
+foreach ($path in @(
+    'README-START-HERE.txt',
+    'requirements.txt'
+)) {
+    if (Test-Path -LiteralPath (Join-Path $repoRoot $path)) {
+        Add-Failure "Removed root file has been reintroduced: $path"
+    }
+}
+
 Write-Host '==> Checking version references' -ForegroundColor Cyan
 $versionFiles = @(
     'src\app_version.py',
     'scripts\build_installer.ps1',
     'installer\PaliaHotpotReminder.iss',
     'README.md',
-    'README-START-HERE.txt',
+    'BUILD.md',
+    'INSTALL-NOTICE.txt',
+    'SECURITY.md',
+    'SIGNING.md',
+    'THIRD-PARTY-NOTICES.md',
+    'VERSION',
     'docs\INSTALLER.md',
     'docs\RELEASE-NOTES-v2.9.md',
     'docs\GITHUB_RELEASE_CHECKLIST.md'
@@ -93,6 +118,10 @@ foreach ($pattern in @(
     'MyPayloadDir',
     'onlyifdoesntexist',
     'uninsneveruninstall',
+    'InfoBeforeFile=\.\.\\INSTALL-NOTICE\.txt',
+    'THIRD-PARTY-NOTICES\.md',
+    'SIGNING\.md',
+    '\.\.\\VERSION',
     'PaliaHotpotReminder-Setup-v2\.9'
 )) {
     if ($iss -notmatch $pattern) {
@@ -111,6 +140,32 @@ foreach ($pattern in @(
 )) {
     if ($readme -notmatch $pattern) {
         Add-Failure "README missing installed-first wording: $pattern"
+    }
+}
+
+Write-Host '==> Checking professional documentation truth' -ForegroundColor Cyan
+$docsText = @(
+    (Get-Content -LiteralPath (Join-Path $repoRoot 'README.md') -Raw),
+    (Get-Content -LiteralPath (Join-Path $repoRoot 'INSTALL-NOTICE.txt') -Raw),
+    (Get-Content -LiteralPath (Join-Path $repoRoot 'SECURITY.md') -Raw),
+    (Get-Content -LiteralPath (Join-Path $repoRoot 'SIGNING.md') -Raw),
+    (Get-Content -LiteralPath (Join-Path $repoRoot 'THIRD-PARTY-NOTICES.md') -Raw)
+) -join "`n"
+foreach ($pattern in @(
+    'installer-first|installed Windows reminder utility',
+    'C:\\Tools\\PaliaHotpotReminder',
+    'PaliaHotpotReminder-Setup-v2\.9\.exe',
+    'does not modify Palia',
+    'read game memory',
+    'inject|hook',
+    'network traffic',
+    'automate gameplay',
+    'unsigned',
+    'SHA-256',
+    'not affiliated'
+)) {
+    if ($docsText -notmatch $pattern) {
+        Add-Failure "Professional docs missing expected truth: $pattern"
     }
 }
 

@@ -14,7 +14,6 @@ $pyiDist = Join-Path $buildRoot 'pyinstaller-dist'
 $pyiWork = Join-Path $buildRoot 'pyinstaller-work'
 $pyiSpec = Join-Path $buildRoot 'pyinstaller-spec'
 $mainScript = Join-Path $repoRoot 'src\main.py'
-$requirementsPath = Join-Path $repoRoot 'requirements.txt'
 $assetsDir = Join-Path $repoRoot 'assets'
 $configDir = Join-Path $repoRoot 'config'
 $iconPath = Join-Path $assetsDir 'App Icon\HPR_Icon.ico'
@@ -97,7 +96,6 @@ Write-Host "Python 3.12 detected: $pythonVersion"
 
 Write-Step 'Verifying project inputs'
 Assert-PathExists -Path $mainScript -Message "Missing entrypoint: $mainScript"
-Assert-PathExists -Path $requirementsPath -Message "Missing requirements file: $requirementsPath"
 Assert-PathExists -Path $assetsDir -Message "Missing assets folder: $assetsDir"
 Assert-PathExists -Path $configDir -Message "Missing config folder: $configDir"
 Assert-PathExists -Path $iconPath -Message "Missing app icon: $iconPath"
@@ -107,7 +105,17 @@ Assert-PathExists -Path (Join-Path $tesseractSource 'tesseract.exe') -Message "M
 Assert-PathExists -Path (Join-Path $tesseractSource 'tessdata\eng.traineddata') -Message "Missing tessdata\eng.traineddata in $tesseractSource"
 
 Write-Step 'Installing/verifying Python requirements'
-Invoke-Py312 @('-m', 'pip', 'install', '-r', $requirementsPath)
+$pythonPackages = @(
+    'mss',
+    'pillow',
+    'pytesseract',
+    'winotify',
+    'pyinstaller',
+    'pystray',
+    'psutil'
+)
+$pipInstallArgs = @('-m', 'pip', 'install') + $pythonPackages
+Invoke-Py312 $pipInstallArgs
 try {
     Invoke-Py312 @('-m', 'PyInstaller', '--version')
 } catch {
@@ -201,23 +209,6 @@ if (Test-Path -LiteralPath $renamedExe) {
     Remove-Item -LiteralPath $renamedExe -Force
 }
 Rename-Item -LiteralPath $builtExe -NewName 'Hotpot-Remind.exe'
-
-@"
-PaliaHotpotReminder v2.9 Installed Release
-
-1. Install with PaliaHotpotReminder-Setup-v2.9.exe.
-2. Launch Palia Hotpot Reminder from the Start Menu.
-3. Open Palia.
-4. Click Setup Clock once.
-5. Click Start Reminder. Auto-arm is enabled by default for later sessions.
-6. HPR remembers safe local setup facts and automatically rechecks them after tray restore or app refocus.
-7. Installed runtime files live under C:\Tools\PaliaHotpotReminder.
-8. This is an external reminder app, not a Palia mod.
-9. It does not modify Palia, read game memory, inspect network traffic, inject, hook, or automate gameplay.
-10. It only reads the clock area selected through Setup Clock.
-11. Dark Mode, Minimize to tray, Close to tray, logging, Smart Resume, and Smart Recall are enabled by default.
-12. Debug / Support tools are available inside the app if support evidence is needed.
-"@ | Set-Content -LiteralPath (Join-Path $payloadRoot 'README-START-HERE.txt') -Encoding UTF8
 
 Write-Step 'Running staged app self-test'
 $payloadExe = Join-Path $payloadRoot 'Hotpot-Remind.exe'

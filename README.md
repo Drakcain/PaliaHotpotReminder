@@ -4,6 +4,10 @@
 
 PaliaHotpotReminder is an installed Windows reminder utility for Palia Hotpot. It uses safe screen OCR on a user-selected clock region so it can track the in-game time and fire reminder popups without modifying the game.
 
+## What It Is
+
+PaliaHotpotReminder is a local desktop helper app. It is not a Palia mod, overlay, bot, memory reader, network tool, or gameplay automation tool.
+
 Users download one file from GitHub Releases:
 
 ```text
@@ -18,7 +22,7 @@ No manual folder copying is required.
 - Install path: `C:\Tools\PaliaHotpotReminder`
 - Run target: `C:\Tools\PaliaHotpotReminder\Hotpot-Remind.exe`
 
-## What It Does
+## How It Works
 - Lets the user select the visible Palia clock region once with `Setup Clock`.
 - OCRs only that selected clock area on screen.
 - Tracks current Hotpot timing state.
@@ -35,8 +39,21 @@ No manual folder copying is required.
 6. Open Palia.
 7. Click `Setup Clock` once.
 8. Click `Start Reminder`.
+9. Optional: enable `Start with Windows` if you want HPR to open automatically.
+10. Optional: keep `Auto-arm when Palia opens` enabled so HPR starts watching when Palia opens.
 
 The EXE is currently unsigned. Windows SmartScreen may show **Windows protected your PC**. Select **More info**, verify that the file came from this repository's Releases page, and select **Run anyway**.
+
+## Release Artifacts
+
+Current releases publish:
+
+```text
+PaliaHotpotReminder-Setup-v2.9.exe
+PaliaHotpotReminder-Setup-v2.9.exe.sha256
+```
+
+Portable ZIP files are not the normal release path.
 
 ## Installed Layout
 ```text
@@ -81,6 +98,7 @@ The installer preserves existing user settings, safe recall state, logs, debug f
 
 ## Troubleshooting
 - Use `Debug / Support` for OCR checks, state inspection, and support exports.
+- Review support bundles before sharing them publicly.
 - `Test Clock` uses the same parser as the live reminder loop.
 - If OCR is noisy, export a Debug Report for support.
 - If the bundled clock reader is missing, reinstall using `PaliaHotpotReminder-Setup-v2.9.exe`.
@@ -100,6 +118,23 @@ The installer preserves existing user settings, safe recall state, logs, debug f
   - Popup/message board art: `assets/Message Board/`
 - Installer build: `scripts/build_installer.ps1`
 - Repo validation: `scripts/Test-Repo.ps1`
-- Requirements: `requirements.txt`
+- Python packages used by the build/runtime:
+  - `mss`
+  - `pillow`
+  - `pytesseract`
+  - `winotify`
+  - `pyinstaller`
+  - `pystray`
+  - `psutil`
+
+Build from source:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\Test-Repo.ps1
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\build_installer.ps1
+```
+
+## Not Affiliated With Palia
 
 This project is an external helper utility. It is not a Palia mod.
+It is not affiliated with, authorized by, sponsored by, or endorsed by Palia, Singularity 6, or Daybreak Game Company.

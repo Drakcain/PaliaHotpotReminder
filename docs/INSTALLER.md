@@ -58,6 +58,15 @@ dist\PaliaHotpotReminder-Setup-v2.9.exe.sha256
 
 The build script stages app files under `build\installer-payload` for Inno Setup. That staging folder is disposable and is not a release artifact.
 
+Root legal/support docs installed with the app:
+
+```text
+INSTALL-NOTICE.txt
+THIRD-PARTY-NOTICES.md
+SIGNING.md
+VERSION
+```
+
 ## Upgrade Behavior
 The installer updates app files but preserves personal runtime data:
 
@@ -88,3 +97,4 @@ Installer support does not change the runtime safety model:
 - No AppData migration
 - No GitHub release upload
 - No source ZIP release path
+- No portable ZIP release path
