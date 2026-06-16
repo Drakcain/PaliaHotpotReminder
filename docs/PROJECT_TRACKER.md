@@ -2,6 +2,11 @@
 
 ## v2.9 Professional Repo Alignment
 
+- Consolidated final polished documentation:
+  - moved release procedure into `docs\RELEASE_PROCESS.md`
+  - folded release history into `docs\CHANGELOG.md`
+  - folded UI planning and theme direction into `docs\UI_ROADMAP.md`
+  - folded durable handoff facts into maintained project docs and removed chat/process debris
 - Added BD-AUTO-style root docs for installed-first release hygiene:
   - `BUILD.md`
   - `INSTALL-NOTICE.txt`
@@ -35,7 +40,7 @@ The active pass is `v2.9`: installed-first release support for `C:\Tools\PaliaHo
 - Preserved runtime data on upgrade where possible: `config\settings.json`, `config\recall_state.json`, `logs`, `debug`, and `exports`.
 - Added `scripts\build_installer.ps1` for reproducible installer-only builds and SHA-256 output.
 - Added `scripts\Test-Repo.ps1` for repository structure/version/runtime-data validation.
-- Added installer documentation and v2.9 release notes.
+- Added installer documentation and consolidated v2.9 release history in `docs\CHANGELOG.md`.
 
 ## v2.8 Smart App Behavior
 - Added Smart Resume triggers for startup, tray show, deiconify, focus return, Palia reopen, Start Reminder, Test Clock, and confirmed Setup Clock replacement.
@@ -51,7 +56,7 @@ The active pass is `v2.9`: installed-first release support for `C:\Tools\PaliaHo
 
 CustomTkinter modernization has been researched and documented as future work.
 No production dependency, runtime code, build behavior, or release artifact was
-changed for that research. See `docs/CUSTOMTKINTER_MODERNIZATION_PLAN.md`.
+changed for that research. See `docs\UI_ROADMAP.md`.
 
 ## What Was Fixed
 - Replaced the placeholder Tkinter screen with a real calibration panel.

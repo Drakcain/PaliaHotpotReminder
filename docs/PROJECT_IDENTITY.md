@@ -29,5 +29,19 @@ The `Mods` folder is an organizational label only and does not imply game modifi
 - Primary release artifact: `PaliaHotpotReminder-Setup-v2.9.exe`.
 - No portable ZIP release path.
 
+## Maintained Documentation Set
+- `README.md`
+- `BUILD.md`
+- `INSTALL-NOTICE.txt`
+- `SECURITY.md`
+- `SIGNING.md`
+- `THIRD-PARTY-NOTICES.md`
+- `VERSION`
+- `docs\CHANGELOG.md`
+- `docs\INSTALLER.md`
+- `docs\PROJECT_TRACKER.md`
+- `docs\RELEASE_PROCESS.md`
+- `docs\UI_ROADMAP.md`
+
 ## Affiliation
 PaliaHotpotReminder is unofficial and not affiliated with Palia, Singularity 6, or Daybreak Game Company.
