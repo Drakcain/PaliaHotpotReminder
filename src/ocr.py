@@ -71,7 +71,7 @@ def resolve_tesseract_cmd(settings: Optional[dict] = None) -> str:
         if bundled.exists():
             return str(bundled)
         raise FileNotFoundError(
-            "Bundled clock reader is missing. Re-extract the full ZIP and keep the tesseract folder beside the EXE."
+            "Bundled clock reader is missing. Reinstall Palia Hotpot Reminder and keep the tesseract folder beside the EXE."
         )
 
     configured = settings.get("tesseract_cmd")
@@ -124,7 +124,7 @@ def preflight_tesseract(settings: Optional[dict] = None):
     if completed.returncode != 0:
         return False, f"Clock reader engine is bundled, but OCR call failed. Please report this build.", output, tessdata_dir
     if re.search(r"(?im)^\s*eng\s*$", completed.stdout) is None:
-        return False, "Clock reader data could not be loaded. Re-extract the full ZIP and keep the tesseract folder beside the EXE.", output, tessdata_dir
+        return False, "Clock reader data could not be loaded. Reinstall Palia Hotpot Reminder and keep the tesseract folder beside the EXE.", output, tessdata_dir
     return True, "ok", output, tessdata_dir
 
 
@@ -161,7 +161,7 @@ def run_ocr(image_path: Path) -> str:
         text = completed.stdout
     except Exception as exc:
         raise RuntimeError(
-            "Clock reader data could not be loaded. Re-extract the full ZIP and keep the tesseract folder beside the EXE."
+            "Clock reader data could not be loaded. Reinstall Palia Hotpot Reminder and keep the tesseract folder beside the EXE."
         ) from exc
     finally:
         try:

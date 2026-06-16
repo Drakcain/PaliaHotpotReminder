@@ -1,7 +1,7 @@
 # CustomTkinter UI Modernization Plan
 
 Status: Research and design groundwork only  
-Current release candidate: v2.8  
+Current release candidate: v2.9
 Implementation approval: Not yet granted
 
 ## Reference Direction
@@ -116,7 +116,7 @@ The prototype and migration must not change:
 - settings keys or file format
 - runtime logging or debug report content
 - single-instance behavior
-- portable folder structure
+- installed folder structure
 - passive/external safety boundaries
 
 The production `PaliaHotpotReminderUI` remains the active UI until a prototype
@@ -155,7 +155,7 @@ If the prototype is approved:
 3. Connect one screen at a time, starting with read-only Dashboard state.
 4. Connect Clock Setup and verify the released replacement/rollback behavior.
 5. Connect Reminders, Diagnostics, Settings, and tray callbacks.
-6. Run full source and portable regression checks.
+6. Run full source and installer regression checks.
 7. Remove the old UI only after the new UI passes release acceptance.
 
 Avoid a mixed long-term UI where arbitrary parts of the same screen use both
@@ -170,7 +170,7 @@ CustomTkinter's package data, including its theme JSON and font resources.
 The prototype must prove:
 
 - source launch works
-- portable EXE launch works
+- installed EXE launch works
 - CustomTkinter package data is present
 - dark/light appearance works in the packaged app
 - Windows scaling does not clip controls
@@ -194,8 +194,8 @@ Do not adopt CustomTkinter in production until the packaged prototype passes.
 ## Roadmap Recommendation
 
 - v2.8: Smart Resume + Local Recall + Debug / Support finalization
-- v2.9: final portable release polish
-- v3.0: isolated CustomTkinter visual prototype or installer status, depending on priority
+- v2.9: installer wizard + `C:\Tools\PaliaHotpotReminder` layout
+- v3.0: isolated CustomTkinter visual prototype or later release status, depending on priority
 - Later: production migration only if the isolated prototype passes
 
 This roadmap can be reordered later, but the prototype must remain separate from

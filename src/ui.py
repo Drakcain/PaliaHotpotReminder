@@ -218,7 +218,7 @@ class PaliaHotpotReminderUI:
         self.popup_style_var = tk.StringVar(value="custom")
         self.popup_duration_var = tk.StringVar(value="15")
         self.popup_position_var = tk.StringVar(value="left")
-        self.popup_asset_path_var = tk.StringVar(value=r"assets\popup_scroll_clean.png")
+        self.popup_asset_path_var = tk.StringVar(value=r"assets\Message Board\popup_scroll_clean.png")
         self.popup_width_var = tk.StringVar(value="560")
         self.popup_height_var = tk.StringVar(value="420")
         self.popup_left_margin_var = tk.StringVar(value="24")
@@ -261,14 +261,14 @@ class PaliaHotpotReminderUI:
         self._log_startup_state()
 
     def _set_window_icon(self) -> None:
-        icon_path = resolve_resource_path(r"assets\app_icon.ico")
+        icon_path = resolve_resource_path(r"assets\App Icon\HPR_Icon.ico")
         if not icon_path.exists():
             return
         try:
             self.root.iconbitmap(default=str(icon_path))
         except Exception:
             try:
-                icon_png = resolve_resource_path(r"assets\app_icon_source.png")
+                icon_png = resolve_resource_path(r"assets\App Icon\HPR_Icon.png")
                 if icon_png.exists():
                     icon_image = tk.PhotoImage(file=str(icon_png))
                     self.root.iconphoto(True, icon_image)
@@ -700,7 +700,7 @@ class PaliaHotpotReminderUI:
         except Exception as exc:
             self._ocr_engine_ready = False
             self._ocr_preflight_result = f"failed: {exc}"
-            self._tesseract_description = f"Bundled clock reader is missing. Re-extract the ZIP and keep the tesseract folder beside the EXE. Details: {exc}"
+            self._tesseract_description = f"Bundled clock reader is missing. Reinstall Palia Hotpot Reminder and keep the tesseract folder beside the EXE. Details: {exc}"
             return self._tesseract_description
 
     def _describe_setup_state(self) -> str:
@@ -1056,7 +1056,7 @@ class PaliaHotpotReminderUI:
         self.popup_style_var.set(str(self.settings.get("popup_style", "custom")))
         self.popup_duration_var.set(str(self.settings.get("popup_duration_seconds", 15)))
         self.popup_position_var.set(str(self.settings.get("popup_position", "left")))
-        self.popup_asset_path_var.set(str(self.settings.get("popup_asset_path", r"assets\popup_scroll_clean.png")))
+        self.popup_asset_path_var.set(str(self.settings.get("popup_asset_path", r"assets\Message Board\popup_scroll_clean.png")))
         self.popup_width_var.set(str(self.settings.get("popup_width", 560)))
         self.popup_height_var.set(str(self.settings.get("popup_height", 420)))
         self.popup_left_margin_var.set(str(self.settings.get("popup_left_margin", 24)))
@@ -1378,7 +1378,7 @@ class PaliaHotpotReminderUI:
             self._tray_manager = TrayManager(
                 root=self.root,
                 settings=self.settings,
-                icon_path=resolve_resource_path(r"assets\app_icon.ico"),
+                icon_path=resolve_resource_path(r"assets\App Icon\HPR_Icon.ico"),
                 on_restore=self._show_from_tray,
                 on_exit=self._exit_app,
                 on_start_reminders=self._start_watching,
@@ -2041,7 +2041,7 @@ class PaliaHotpotReminderUI:
         candidate["popup_style"] = self.popup_style_var.get().strip().lower() or "custom"
         candidate["popup_duration_seconds"] = self._read_int_or_default(self.popup_duration_var, "Popup Duration", 15, minimum=1)
         candidate["popup_position"] = self.popup_position_var.get().strip().lower() or "left"
-        candidate["popup_asset_path"] = self.popup_asset_path_var.get().strip() or r"assets\popup_scroll_clean.png"
+        candidate["popup_asset_path"] = self.popup_asset_path_var.get().strip() or r"assets\Message Board\popup_scroll_clean.png"
         candidate["popup_width"] = self._read_int_or_default(self.popup_width_var, "Popup Width", 560, minimum=320)
         candidate["popup_height"] = self._read_int_or_default(self.popup_height_var, "Popup Height", 420, minimum=240)
         candidate["popup_left_margin"] = self._read_int_or_default(self.popup_left_margin_var, "Popup Left Margin", 24, minimum=0)
@@ -2068,7 +2068,7 @@ class PaliaHotpotReminderUI:
                 shortcut_path=shortcut_path,
                 target_path=exe_path,
                 working_directory=exe_path.parent,
-                icon_path=resolve_resource_path(r"assets\app_icon.ico"),
+                icon_path=resolve_resource_path(r"assets\App Icon\HPR_Icon.ico"),
                 description="PaliaHotpotReminder",
             )
             self.status_var.set(f"Desktop shortcut created: {shortcut_path}")
@@ -2155,7 +2155,7 @@ class PaliaHotpotReminderUI:
             shortcut_path=shortcut_path,
             target_path=exe_path,
             working_directory=exe_path.parent,
-            icon_path=resolve_resource_path(r"assets\app_icon.ico"),
+            icon_path=resolve_resource_path(r"assets\App Icon\HPR_Icon.ico"),
             description="PaliaHotpotReminder",
         )
         self._refresh_startup_shortcut_state()

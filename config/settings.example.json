@@ -71,7 +71,7 @@
   "popup_style": "custom",
   "popup_duration_seconds": 15,
   "popup_position": "left",
-  "popup_asset_path": "assets\\popup_scroll_clean.png",
+  "popup_asset_path": "assets\\Message Board\\popup_scroll_clean.png",
   "popup_width": 560,
   "popup_height": 420,
   "popup_left_margin": 24,

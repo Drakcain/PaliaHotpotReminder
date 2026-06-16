@@ -1,24 +1,61 @@
-; PaliaHotpotReminder v2.8 installer scaffold
-; Build with Inno Setup when available.
+#ifndef MyAppVersion
+  #define MyAppVersion "2.9"
+#endif
+#ifndef MyPayloadDir
+  #define MyPayloadDir "..\build\installer-payload"
+#endif
+
+#define MyAppName "Palia Hotpot Reminder"
+#define MyAppPublisher "Drakcain"
+#define MyAppURL "https://github.com/Drakcain/PaliaHotpotReminder"
 
 [Setup]
-AppName=PaliaHotpotReminder
-AppVersion=2.8
-DefaultDirName={localappdata}\PaliaHotpotReminder
-DefaultGroupName=PaliaHotpotReminder
-OutputBaseFilename=PaliaHotpotReminder-v2.8-Setup
-Compression=lzma2
+AppId=PaliaHotpotReminder
+AppName={#MyAppName}
+AppVersion={#MyAppVersion}
+AppPublisher={#MyAppPublisher}
+AppPublisherURL={#MyAppURL}
+AppSupportURL={#MyAppURL}/issues
+AppUpdatesURL={#MyAppURL}/releases
+DefaultDirName=C:\Tools\PaliaHotpotReminder
+DefaultGroupName=Palia Hotpot Reminder
+OutputDir=..\dist
+OutputBaseFilename=PaliaHotpotReminder-Setup-v2.9
+SetupIconFile=..\assets\App Icon\HPR_Icon.ico
+UninstallDisplayIcon={app}\Hotpot-Remind.exe
+Compression=lzma2/ultra64
 SolidCompression=yes
 DisableProgramGroupPage=no
 DisableDirPage=no
-PrivilegesRequired=lowest
+PrivilegesRequired=admin
+ArchitecturesAllowed=x64compatible
+ArchitecturesInstallIn64BitMode=x64compatible
+WizardStyle=modern
+SetupLogging=yes
+Uninstallable=yes
+UninstallDisplayName=Palia Hotpot Reminder
+MinVersion=10.0.17763
 
 [Files]
-Source: "..\dist\PaliaHotpotReminder-v2.8-portable\*"; DestDir: "{app}"; Flags: recursesubdirs ignoreversion
+Source: "{#MyPayloadDir}\*"; DestDir: "{app}"; Excludes: "config\settings.json,config\recall_state.json,logs\*,debug\*,exports\*"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#MyPayloadDir}\config\settings.json"; DestDir: "{app}\config"; Flags: onlyifdoesntexist uninsneveruninstall
+
+[Dirs]
+Name: "{app}\config"; Permissions: users-modify; Flags: uninsneveruninstall
+Name: "{app}\logs"; Permissions: users-modify; Flags: uninsneveruninstall
+Name: "{app}\debug"; Permissions: users-modify; Flags: uninsneveruninstall
+Name: "{app}\exports"; Permissions: users-modify; Flags: uninsneveruninstall
 
 [Icons]
-Name: "{group}\Hotpot-Remind"; Filename: "{app}\Hotpot-Remind.exe"; WorkingDir: "{app}"
-Name: "{commondesktop}\Hotpot-Remind"; Filename: "{app}\Hotpot-Remind.exe"; Tasks: desktopicon
+Name: "{group}\Palia Hotpot Reminder"; Filename: "{app}\Hotpot-Remind.exe"; WorkingDir: "{app}"
+Name: "{commondesktop}\Palia Hotpot Reminder"; Filename: "{app}\Hotpot-Remind.exe"; WorkingDir: "{app}"; Tasks: desktopicon
+Name: "{group}\Logs"; Filename: "{app}\logs"
+Name: "{group}\Debug"; Filename: "{app}\debug"
+Name: "{group}\Uninstall Palia Hotpot Reminder"; Filename: "{uninstallexe}"
+Name: "{group}\PaliaHotpotReminder on GitHub"; Filename: "{#MyAppURL}"
 
 [Tasks]
 Name: "desktopicon"; Description: "Create a &desktop shortcut"; Flags: unchecked
+
+[Run]
+Filename: "{app}\Hotpot-Remind.exe"; Description: "Launch Palia Hotpot Reminder"; Flags: nowait postinstall skipifsilent

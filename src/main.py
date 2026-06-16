@@ -20,8 +20,8 @@ def run_self_test() -> int:
     checks = [
         ("app_root", str(get_app_root())),
         ("source_root", str(get_source_root())),
-        ("icon", str(resolve_resource_path(r"assets\app_icon.ico"))),
-        ("popup", str(resolve_resource_path(r"assets\popup_scroll_clean.png"))),
+        ("icon", str(resolve_resource_path(r"assets\App Icon\HPR_Icon.ico"))),
+        ("popup", str(resolve_resource_path(r"assets\Message Board\popup_scroll_clean.png"))),
     ]
     ok, msg, output, tessdata = preflight_tesseract(settings)
     print("SELF_TEST: app_root=", get_app_root())

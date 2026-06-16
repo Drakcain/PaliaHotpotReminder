@@ -1,7 +1,19 @@
 # Project Tracker
 
 ## Current Task
-`v2.8` is complete, validated, and staged as the current portable release. Smart Resume, safe local Smart Recall, tray/refocus recovery, Start Reminder/Test Clock preflight, Debug / Support finalization, asynchronous cancellable Setup Clock, and final portable validation are complete. The confirmed v2.7 parser, tray, process detection, Setup Clock transaction, Palia close/reopen reset, logging, high-contrast Dark Mode, and native dark title bar baselines remain protected.
+The active pass is `v2.9`: installed-first release support for `C:\Tools\PaliaHotpotReminder`, modeled after the BD-AUTO installer workflow. Smart Resume, safe local Smart Recall, tray/refocus recovery, Start Reminder/Test Clock preflight, Debug / Support finalization, and asynchronous cancellable Setup Clock remain protected.
+
+## v2.9 Installer Behavior
+- Added an Inno Setup installer wizard targeting `C:\Tools\PaliaHotpotReminder`.
+- Added Start Menu shortcut support for `Palia Hotpot Reminder`.
+- Added optional Desktop shortcut support.
+- Added optional launch-after-install support.
+- Added admin/machine-level installer metadata for the `C:\Tools` target.
+- Removed portable ZIP as a release artifact; Inno now consumes a temporary `build\installer-payload` staging folder.
+- Preserved runtime data on upgrade where possible: `config\settings.json`, `config\recall_state.json`, `logs`, `debug`, and `exports`.
+- Added `scripts\build_installer.ps1` for reproducible installer-only builds and SHA-256 output.
+- Added `scripts\Test-Repo.ps1` for repository structure/version/runtime-data validation.
+- Added installer documentation and v2.9 release notes.
 
 ## v2.8 Smart App Behavior
 - Added Smart Resume triggers for startup, tray show, deiconify, focus return, Palia reopen, Start Reminder, Test Clock, and confirmed Setup Clock replacement.
@@ -34,15 +46,15 @@ changed for that research. See `docs/CUSTOMTKINTER_MODERNIZATION_PLAN.md`.
 - Added state-only watch logging to `debug\watch_state_log.txt`.
 - Added reminder evaluation and popup support with `winotify` fallback behavior.
 - Added a custom popup renderer in `src\custom_popup.py` using the popup asset configured in settings.
-- Added a transparent cleaned popup asset at `assets\popup_scroll_clean.png` and switched the popup config to use it.
+- Added a transparent cleaned popup asset at `assets\Message Board\popup_scroll_clean.png` and switched the popup config to use it.
 - Added `hotpot_start_time` and `hotpot_end_time` settings for the cross-midnight Hotpot window.
 - Added cross-midnight time helpers and warning-target math for 6:00 PM through 3:00 AM.
 - Added per-reminder custom popup text support with a user-editable `hotpot_reminder_messages` map.
 - Added `max_estimated_reminder_age_seconds` so normal reminders can be suppressed when an estimated clock has gone stale for too long.
 - Locked the estimator ratio to `0.4` and hardened invalid ratio recovery back to the safe default.
-- Added frozen-mode resource resolution helper so portable builds can load assets, config, and bundled Tesseract from the EXE folder.
+- Added frozen-mode resource resolution helper so packaged builds can load assets, config, and bundled Tesseract from the EXE folder.
 - Added a proper Windows ICO asset for the EXE and window icon.
-- Fixed bundled OCR invocation to preflight the portable Tesseract engine with explicit `--tessdata-dir`, `lang="eng"`, and bundled `TESSDATA_PREFIX` handling before OCR runs.
+- Fixed bundled OCR invocation to preflight the packaged Tesseract engine with explicit `--tessdata-dir`, `lang="eng"`, and bundled `TESSDATA_PREFIX` handling before OCR runs.
 - Added `--self-test` so the EXE can validate packaged resources and bundled OCR health without needing Palia to run.
 
 ## What Was Improved
@@ -74,7 +86,7 @@ changed for that research. See `docs/CUSTOMTKINTER_MODERNIZATION_PLAN.md`.
 - Added popup settings controls for style, duration, position, asset path, size, and margins.
 - Added separate `Test System Popup` and `Test Custom Popup` buttons.
 - Added a clear Hotpot Window display in the UI.
-- Polished the portable release to use a visible `Hotpot-Remind.exe` and matching `Hotpot-Remind.ico` in the extracted release folder.
+- Polished the packaged release to use a visible `Hotpot-Remind.exe` and matching `Hotpot-Remind.ico` in the installed folder.
 - Added a simple Dark Mode / Light Mode toggle with dark default packaging.
 - Improved Dark Mode into a high-contrast AMOLED / Discord-on-onyx style palette with bright readable text and stronger borders.
 - Added a native dark Windows title bar request so the frame better matches the existing Dark Mode styling without replacing the standard window chrome.
@@ -91,7 +103,7 @@ changed for that research. See `docs/CUSTOMTKINTER_MODERNIZATION_PLAN.md`.
 - Confirmed the 6:00 PM and 3:00 AM reminder copy renders correctly through the custom popup smoke path.
 - Confirmed the system-fallback reminder path receives the same reminder title/message pair.
 - Added a reminder text preview row so the active copy is visible in the UI.
-- Added a window icon so the app matches the packaged EXE icon in source and portable mode.
+- Added a window icon so the app matches the packaged EXE icon in source and installed mode.
 
 ## Hardening Added
 - Region validation rejects invalid or zero-sized regions.
@@ -120,24 +132,24 @@ changed for that research. See `docs/CUSTOMTKINTER_MODERNIZATION_PLAN.md`.
 - The UI labels were tightened for readability: `Clock State`, `Reminder details`, `Timing ratio`, and `System Status`.
 - The live reminder copy can now be read directly from the UI for the next scheduled reminder.
 - Added a note in the UI that each PC may need its own clock setup.
-- The original `assets\popup_scroll.png` was inspected with Pillow and found to be `RGB` with no alpha channel and zero transparent pixels, so the checkerboard was baked into the file rather than real transparency.
+- The original `assets\Message Board\popup_scroll.png` was inspected with Pillow and found to be `RGB` with no alpha channel and zero transparent pixels, so the checkerboard was baked into the file rather than real transparency.
 - A cleaned transparent copy was generated with 567,390 background pixels removed from the 1,448 x 1,086 source image.
 - The popup window now uses a transparent color key and the canvas background is transparent-keyed as well so only the artwork cutout remains visible.
 - A GUI smoke test confirmed the custom popup opens with the cleaned artwork asset and auto-closes successfully.
 - A code-path validation of the 5:45 PM reminder branch confirmed one fire followed by cooldown suppression with the new diagnostics.
 - Custom reminder text now exists for `5:45 PM`, `6:00 PM`, `12:00 AM`, `2:50 AM`, and `3:00 AM`.
-- The portable build script now verifies Python 3.12, installs requirements, verifies bundled Tesseract, builds an onedir EXE, copies assets/config/Tesseract, and writes a portable quick-start file.
-- The portable build script now builds the EXE in `--windowed` mode to avoid the black console window.
-- Added an installer scaffold for Inno Setup so a per-user installer can be built without removing portable ZIP output.
-- The portable build now rewrites the visible release EXE name to `Hotpot-Remind.exe` and updates the root icon name to match.
-- The portable release now ships with `theme: dark` by default so new installs open in Dark Mode.
+- The installer build script now verifies Python 3.12, installs requirements, verifies bundled Tesseract, builds an onedir EXE, and stages an Inno payload.
+- The installer build script now builds the EXE in `--windowed` mode to avoid the black console window.
+- Added an Inno Setup installer for `C:\Tools\PaliaHotpotReminder`.
+- The installer payload now rewrites the visible release EXE name to `Hotpot-Remind.exe` and updates the root icon name to match.
+- The installed release now ships with `theme: dark` by default so new installs open in Dark Mode.
 - Dark Mode contrast was increased to avoid muddy gray-on-gray text and keep labels readable on black backgrounds.
-- The `assets\app_icon.ico` file was converted into a real multi-size ICO so the EXE icon is reliable in Explorer and PyInstaller.
-- The portable ZIP now preserves the release folder root and excludes `desktop.ini` so the archive stays clean after extraction.
+- The `assets\App Icon\HPR_Icon.ico` file was converted into a real multi-size ICO so the EXE icon is reliable in Explorer and PyInstaller.
+- The installer payload excludes `desktop.ini` and runtime state so the installed app starts clean.
 - The packaged OCR path now reports bundled engine health clearly before attempting a clock read, so language-load failures surface as plain-English setup guidance instead of a raw OCR crash.
 - The main window is now scrollable and resizable so small screens can reach the bottom controls.
 - The `Setup Clock` path is beginner-safe and does not save a clock box unless the user confirms the detected time.
-- Fresh-extracted portable validation passed from a Desktop test folder with bundled `tesseract.exe --list-langs --tessdata-dir ".\\tesseract\\tessdata"` returning `eng`, and the EXE `--self-test` confirming the extracted app root, assets, config, and bundled tessdata.
+- Packaged validation passed with bundled `tesseract.exe --list-langs --tessdata-dir ".\\tesseract\\tessdata"` returning `eng`, and the EXE `--self-test` confirming the app root, assets, config, and bundled tessdata.
 - The new auto-arm logic intentionally avoids Palia file access, memory inspection, packet inspection, overlays, or input automation.
 - Tray support is optional and falls back safely if the dependency is unavailable.
 - Recurring runtime polling now uses `psutil` only; if `psutil` is unavailable the app logs the failure and reports Palia as not detected rather than falling back to shell commands.
@@ -147,9 +159,10 @@ changed for that research. See `docs/CUSTOMTKINTER_MODERNIZATION_PLAN.md`.
 - Live Palia-window validation has now been completed by the user: confirmed and estimated clock modes both behaved correctly with the corrected ratio.
 - The v2.8 source and packaged EXE self-tests pass.
 - HPR-only GUI, tray restore/exit, single-instance, Smart Resume, and Setup Clock cancel validation pass.
-- The final portable ZIP has a clean root, clean default settings, no runtime logs/recall state/source files, and a matching Downloads copy.
+- The final installed-mode payload has clean default settings and no runtime logs, recall state, or source files.
 
 ## Next Safe Step
-- Distribute `dist\PaliaHotpotReminder-v2.8-portable.zip` as the current release.
+- Run v2.9 repo validation and installer build.
+- If Inno Setup is missing, install it with `winget install JRSoftware.InnoSetup` and rerun `scripts\build_installer.ps1`.
 - Keep CustomTkinter modernization as a separate future prototype; do not mix it into the validated v2.8 release.
 

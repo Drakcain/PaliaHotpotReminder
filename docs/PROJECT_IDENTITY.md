@@ -1,10 +1,10 @@
 # Project Identity
 
 ## Canonical Path
-`C:\GITHUB BUILDS\PC Game Tools\Mods\PaliaHotpotReminder`
+`C:\GITHUB BUILDS\PaliaHotpotReminder`
 
 ## Identity
-- External Windows desktop helper app.
+- Installed-first external Windows desktop helper app.
 - Passive only.
 - Reads the visible Palia clock region via screen capture and OCR.
 - Not a real Palia mod.
@@ -20,3 +20,6 @@
 
 ## Folder Name Clarification
 The `Mods` folder is an organizational label only and does not imply game modification.
+
+## Installer Target
+`C:\Tools\PaliaHotpotReminder`

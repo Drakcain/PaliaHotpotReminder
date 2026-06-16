@@ -2,14 +2,15 @@
 
 ## Before Tagging
 - Run source self-test or normal local validation.
-- Run packaged self-test on the portable build.
-- Confirm the final ZIP hash matches the intended release hash.
-- Confirm the ZIP contents are clean and portable.
+- Run installer build validation.
+- Confirm the installer hash matches the intended release hash.
+- Confirm the installer installs the expected app payload.
 - Confirm no personal config, logs, recall state, or debug artifacts are being committed.
 
 ## GitHub Steps
-- Create tag `v2.8`.
-- Create GitHub Release for `v2.8`.
-- Upload `PaliaHotpotReminder-v2.8-portable.zip`.
-- Paste the contents of `docs/RELEASE_NOTES-v2.8.md`.
-- Include SHA-256: `5A9EF47E2C55FB1B1FF322326A6FED1300E5248D6DBB3641CFEA7028FF2A0165`
+- Create tag `v2.9`.
+- Create GitHub Release for `v2.9`.
+- Upload `PaliaHotpotReminder-Setup-v2.9.exe`.
+- Upload `PaliaHotpotReminder-Setup-v2.9.exe.sha256`.
+- Paste the contents of `docs/RELEASE-NOTES-v2.9.md`.
+- Include SHA-256 hashes generated during release validation.
