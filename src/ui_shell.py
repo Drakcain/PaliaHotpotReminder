@@ -106,7 +106,7 @@ class UIShell:
         chips.grid(row=1, column=0, sticky="w", pady=(10, 0))
         self.app.palia_chip = StatusChip(chips, "Palia: Offline", colors=self.colors)
         self.app.palia_chip.pack(side="left", padx=(0, 8))
-        self.app.reminder_chip = StatusChip(chips, "Reminder: Waiting", colors=self.colors)
+        self.app.reminder_chip = StatusChip(chips, "Reminder: Activated", colors=self.colors)
         self.app.reminder_chip.pack(side="left", padx=(0, 8))
         self.app.clock_chip = StatusChip(chips, "Clock: Needed", colors=self.colors)
         self.app.clock_chip.pack(side="left")

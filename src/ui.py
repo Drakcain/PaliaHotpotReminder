@@ -578,7 +578,7 @@ class PaliaHotpotReminderUI:
             return "Reminder: Failed"
         if "stopped" in lower:
             return "Reminder: Stopped"
-        return "Reminder: Waiting"
+        return "Reminder: Activated"
 
     def _compact_clock_chip_text(self, value: str) -> str:
         return "Clock: Ready" if "ready" in str(value).strip().lower() else "Clock: Needed"
