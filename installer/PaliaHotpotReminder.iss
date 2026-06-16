@@ -1,5 +1,5 @@
 #ifndef MyAppVersion
-  #define MyAppVersion "2.9"
+  #define MyAppVersion "3.0"
 #endif
 #ifndef MyPayloadDir
   #define MyPayloadDir "..\build\installer-payload"
@@ -20,7 +20,7 @@ AppUpdatesURL={#MyAppURL}/releases
 DefaultDirName=C:\Tools\PaliaHotpotReminder
 DefaultGroupName=Palia Hotpot Reminder
 OutputDir=..\dist
-OutputBaseFilename=PaliaHotpotReminder-Setup-v2.9
+OutputBaseFilename=PaliaHotpotReminder-Setup-v3.0
 SetupIconFile=..\assets\App Icon\HPR_Icon.ico
 UninstallDisplayIcon={app}\Hotpot-Remind.exe
 Compression=lzma2/ultra64

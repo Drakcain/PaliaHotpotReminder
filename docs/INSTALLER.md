@@ -1,12 +1,12 @@
 # PaliaHotpotReminder Installed Mode
 
 ## Purpose
-`v2.9` transitions PaliaHotpotReminder to an installed-first Windows utility, matching the BD-AUTO-style distribution model.
+`v3.0` preserves the installed-first Windows utility model and updates the runtime UI shell to CustomTkinter with a High-Contrast Black + Purple style.
 
 Normal users should use:
 
 ```text
-PaliaHotpotReminder-Setup-v2.9.exe
+PaliaHotpotReminder-Setup-v3.0.exe
 ```
 
 ## Install Path
@@ -52,8 +52,8 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\build_installe
 Expected outputs:
 
 ```text
-dist\PaliaHotpotReminder-Setup-v2.9.exe
-dist\PaliaHotpotReminder-Setup-v2.9.exe.sha256
+dist\PaliaHotpotReminder-Setup-v3.0.exe
+dist\PaliaHotpotReminder-Setup-v3.0.exe.sha256
 ```
 
 The build script stages app files under `build\installer-payload` for Inno Setup. That staging folder is disposable and is not a release artifact.

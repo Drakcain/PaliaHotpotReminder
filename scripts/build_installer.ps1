@@ -7,7 +7,7 @@ Set-StrictMode -Version Latest
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 Set-Location $repoRoot
 
-$version = '2.9'
+$version = '3.0'
 $buildRoot = Join-Path $repoRoot 'build'
 $payloadRoot = Join-Path $buildRoot 'installer-payload'
 $pyiDist = Join-Path $buildRoot 'pyinstaller-dist'
@@ -112,7 +112,8 @@ $pythonPackages = @(
     'winotify',
     'pyinstaller',
     'pystray',
-    'psutil'
+    'psutil',
+    'customtkinter'
 )
 $pipInstallArgs = @('-m', 'pip', 'install') + $pythonPackages
 Invoke-Py312 $pipInstallArgs
@@ -163,9 +164,12 @@ $pyinstallerArgs = @(
     '--hidden-import', 'pystray',
     '--hidden-import', 'psutil',
     '--hidden-import', 'psutil._psutil_windows',
+    '--hidden-import', 'customtkinter',
+    '--hidden-import', 'darkdetect',
     '--hidden-import', 'PIL',
     '--hidden-import', 'PIL.Image',
     '--hidden-import', 'PIL.ImageDraw',
+    '--collect-data', 'customtkinter',
     '--paths', (Join-Path $repoRoot 'src'),
     '--distpath', $pyiDist,
     '--workpath', $pyiWork,

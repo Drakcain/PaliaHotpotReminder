@@ -1,23 +1,52 @@
 from __future__ import annotations
 
+HPR_THEME_NAME = "HPR High-Contrast Black Purple"
+
+BG_MAIN = "#000000"
+BG_PANEL = "#050509"
+BG_CARD = "#080812"
+BG_ELEVATED = "#0D0A14"
+
+PURPLE = "#8A5CFF"
+PURPLE_BRIGHT = "#B07CFF"
+PURPLE_DARK = "#3B236D"
+PURPLE_MUTED = "#5E3AA8"
+
+TEXT_MAIN = "#FFFFFF"
+TEXT_SOFT = "#E8E1FF"
+TEXT_MUTED = "#A99BC8"
+
+BORDER = "#2B174D"
+BORDER_ACTIVE = "#8A5CFF"
+
+SUCCESS = "#65E572"
+WARNING = "#FFD166"
+ERROR = "#FF5C8A"
+INFO = "#66D9EF"
+
 THEMES = {
     "dark": {
-        "window_bg": "#000000",
-        "panel_bg": "#0B0B0F",
-        "panel_raised": "#111217",
-        "field_bg": "#050505",
-        "text": "#F5F5F7",
-        "text_secondary": "#C9CDD6",
-        "text_muted": "#9BA1AD",
-        "border": "#2A2D35",
-        "strong_border": "#3B3F4A",
-        "button_bg": "#151720",
-        "button_hover": "#1E2230",
-        "button_text": "#FFFFFF",
-        "accent": "#5865F2",
-        "good": "#7DD3FC",
-        "warning": "#FACC15",
-        "error": "#F87171",
+        "theme_name": HPR_THEME_NAME,
+        "window_bg": BG_MAIN,
+        "panel_bg": BG_PANEL,
+        "panel_raised": BG_ELEVATED,
+        "card_bg": BG_CARD,
+        "field_bg": BG_MAIN,
+        "text": TEXT_MAIN,
+        "text_secondary": TEXT_SOFT,
+        "text_muted": TEXT_MUTED,
+        "border": BORDER,
+        "strong_border": BORDER_ACTIVE,
+        "button_bg": PURPLE_MUTED,
+        "button_hover": PURPLE_BRIGHT,
+        "button_text": TEXT_MAIN,
+        "accent": PURPLE,
+        "accent_bright": PURPLE_BRIGHT,
+        "accent_dark": PURPLE_DARK,
+        "good": SUCCESS,
+        "warning": WARNING,
+        "error": ERROR,
+        "info": INFO,
     },
     "light": {
         "window_bg": "#f4f4f4",
@@ -33,9 +62,11 @@ THEMES = {
         "button_hover": "#d8d8d8",
         "button_text": "#1f1f1f",
         "accent": "#3b82f6",
+        "accent_bright": "#2563eb",
+        "accent_dark": "#93c5fd",
         "good": "#0ea5e9",
         "warning": "#b45309",
         "error": "#dc2626",
+        "info": "#0ea5e9",
     },
 }
-

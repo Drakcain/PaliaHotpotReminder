@@ -5,6 +5,8 @@ import tkinter as tk
 from contextlib import redirect_stdout
 from pathlib import Path
 
+import customtkinter as ctk
+
 from config import load_settings
 from debug_report import build_debug_report
 from instance_guard import SingleInstanceGuard
@@ -203,7 +205,8 @@ def main() -> None:
     if not guard.acquire():
         raise SystemExit(0)
 
-    root = tk.Tk()
+    ctk.set_appearance_mode("dark")
+    root = ctk.CTk()
     PaliaHotpotReminderUI(root)
     root.mainloop()
 

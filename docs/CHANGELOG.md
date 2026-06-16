@@ -1,5 +1,32 @@
 # Changelog
 
+## v3.0
+
+### UI Modernization
+
+- Introduced a modern CustomTkinter runtime shell.
+- Added the `HPR High-Contrast Black Purple` visual direction.
+- Replaced the old groupbox-heavy layout with a dashboard shell, sidebar,
+  cards, status chips, modern switches, and a recent activity panel.
+- Preserved Setup Clock, Test Clock, Start/Stop Reminder, Test Popup, Debug /
+  Support, startup, auto-arm, tray, OCR, reminder, and process-watcher behavior.
+
+### Distribution
+
+- Installer-first distribution remains unchanged.
+- Primary release artifact is `PaliaHotpotReminder-Setup-v3.0.exe`.
+- Checksum artifact is `PaliaHotpotReminder-Setup-v3.0.exe.sha256`.
+- Installs to `C:\Tools\PaliaHotpotReminder`.
+- Runs from `C:\Tools\PaliaHotpotReminder\Hotpot-Remind.exe`.
+
+### Safety Boundary
+
+- No gameplay automation was added.
+- No game memory reading was added.
+- No injection, hooking, network inspection, or game file edits were added.
+- HPR remains an external helper app that OCRs only the user-selected visible
+  clock region.
+
 ## v2.9
 
 ### Distribution

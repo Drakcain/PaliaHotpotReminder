@@ -1,6 +1,6 @@
 # Third-Party Notices
 
-Current release: v2.9
+Current release: v3.0
 
 PaliaHotpotReminder is an independent external helper utility. It is not
 affiliated with, authorized by, sponsored by, or endorsed by Palia, Singularity 6,
@@ -21,6 +21,7 @@ Current Python packages used by the build/runtime:
 
 ```text
 mss
+customtkinter
 pillow
 pytesseract
 winotify

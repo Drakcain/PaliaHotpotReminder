@@ -5,9 +5,9 @@ publish the Inno Setup installer and its checksum only.
 
 ## Release Truth
 
-- Current version: `v2.9`
-- Primary artifact: `PaliaHotpotReminder-Setup-v2.9.exe`
-- Checksum artifact: `PaliaHotpotReminder-Setup-v2.9.exe.sha256`
+- Current version: `v3.0`
+- Primary artifact: `PaliaHotpotReminder-Setup-v3.0.exe`
+- Checksum artifact: `PaliaHotpotReminder-Setup-v3.0.exe.sha256`
 - Install target: `C:\Tools\PaliaHotpotReminder`
 - Main executable: `C:\Tools\PaliaHotpotReminder\Hotpot-Remind.exe`
 
@@ -37,11 +37,11 @@ Confirm:
 
 ## GitHub Publishing
 
-For `v2.9`, publish these release assets:
+For `v3.0`, publish these release assets:
 
 ```text
-PaliaHotpotReminder-Setup-v2.9.exe
-PaliaHotpotReminder-Setup-v2.9.exe.sha256
+PaliaHotpotReminder-Setup-v3.0.exe
+PaliaHotpotReminder-Setup-v3.0.exe.sha256
 ```
 
 Use `docs\CHANGELOG.md` as the source of release history and release-note facts.

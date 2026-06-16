@@ -1,12 +1,11 @@
 # UI Roadmap
 
-This document tracks the current HPR UI rules and the deferred CustomTkinter
-modernization direction. It is planning documentation only; no production UI
-migration is approved in the current release.
+This document tracks the current HPR UI rules and the v3.0 CustomTkinter
+modernization direction.
 
 ## Current UI State
 
-- Production UI is Python/Tkinter.
+- Production UI is Python with a CustomTkinter runtime shell.
 - Styling is centralized through `src\theme.py`.
 - `src\ui.py` should read theme values from `src\theme.py`.
 - `theme` remains a persisted config value and defaults to `dark`.
@@ -15,24 +14,25 @@ migration is approved in the current release.
 
 ## Theme Direction
 
-### Dark Mode
+### HPR High-Contrast Black Purple
 
 - Window background: `#000000`
-- Panel background: `#0B0B0F`
-- Raised panel background: `#111217`
-- Field background: `#050505`
-- Primary text: `#F5F5F7`
-- Secondary text: `#C9CDD6`
-- Muted text: `#9BA1AD`
-- Border: `#2A2D35`
-- Strong border: `#3B3F4A`
-- Button background: `#151720`
-- Button hover/active: `#1E2230`
+- Panel background: `#050509`
+- Card background: `#080812`
+- Raised panel background: `#0D0A14`
+- Field background: `#000000`
+- Primary text: `#FFFFFF`
+- Secondary text: `#E8E1FF`
+- Muted text: `#A99BC8`
+- Border: `#2B174D`
+- Strong border: `#8A5CFF`
+- Button background: `#5E3AA8`
+- Button hover/active: `#B07CFF`
 - Button text: `#FFFFFF`
-- Accent: `#5865F2`
-- Good/status text: `#7DD3FC`
-- Warning text: `#FACC15`
-- Error text: `#F87171`
+- Accent: `#8A5CFF`
+- Good/status text: `#65E572`
+- Warning text: `#FFD166`
+- Error text: `#FF5C8A`
 
 ### Light Mode
 
@@ -57,15 +57,16 @@ Future visual reference:
 - https://customtkinter.tomschimansky.com/documentation/
 - https://github.com/TomSchimansky/CustomTkinter/blob/master/documentation_images/complex_example_dark_Windows.png
 
-The target direction is a modern dark desktop dashboard inspired by the official
-CustomTkinter complex example:
+The v3.0 direction is a black/purple desktop dashboard inspired by the official
+CustomTkinter complex example and the user's black/purple VS Code workspace:
 
 - persistent left navigation
 - rounded, clearly separated cards
 - compact status summaries
 - modern switches and buttons
-- strong dark-panel contrast
-- restrained blue accent color
+- true black shell
+- strong purple borders and focus states
+- high-contrast white/lavender text
 - readable spacing at Windows display scaling above 100%
 
 This is visual inspiration, not a request to copy the example layout or replace

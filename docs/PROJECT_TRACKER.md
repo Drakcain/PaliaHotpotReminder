@@ -1,5 +1,19 @@
 # Project Tracker
 
+## v3.0 CustomTkinter UI Modernization
+
+- Replaced the classic Tkinter-looking runtime shell with a CustomTkinter shell.
+- Applied the `HPR High-Contrast Black Purple` visual direction inspired by the
+  user's black/purple VS Code workspace.
+- Added dashboard cards, status chips, sidebar navigation, modern switches, and
+  a recent activity panel.
+- Preserved existing Setup Clock, Test Clock, Start/Stop Reminder, Test Popup,
+  Debug / Support, startup, auto-arm, tray, OCR, reminder, process watcher,
+  single-instance, and installed-first behavior.
+- Added `customtkinter` to the build/runtime dependency list and PyInstaller
+  data collection.
+- Target artifact is `PaliaHotpotReminder-Setup-v3.0.exe`.
+
 ## v2.9 Professional Repo Alignment
 
 - Consolidated final polished documentation:
@@ -28,7 +42,7 @@
 - Did not add a root `LICENSE`; project license choice remains a required owner decision.
 
 ## Current Task
-The active pass is `v2.9`: installed-first release support for `C:\Tools\PaliaHotpotReminder`, modeled after the BD-AUTO installer workflow. Smart Resume, safe local Smart Recall, tray/refocus recovery, Start Reminder/Test Clock preflight, Debug / Support finalization, and asynchronous cancellable Setup Clock remain protected.
+The active pass is `v3.0`: CustomTkinter UI shell modernization with a High-Contrast Black + Purple visual style. Smart Resume, safe local Smart Recall, tray/refocus recovery, Start Reminder/Test Clock preflight, Debug / Support finalization, and asynchronous cancellable Setup Clock remain protected.
 
 ## v2.9 Installer Behavior
 - Added an Inno Setup installer wizard targeting `C:\Tools\PaliaHotpotReminder`.
@@ -54,9 +68,8 @@ The active pass is `v2.9`: installed-first release support for `C:\Tools\PaliaHo
 - Extended self-test coverage for recall read/write/corruption, readiness decisions, monitor fingerprints, debug report sections, and the full risky parser matrix.
 - Packaging excludes runtime recall state and continues to ship a clean setup.
 
-CustomTkinter modernization has been researched and documented as future work.
-No production dependency, runtime code, build behavior, or release artifact was
-changed for that research. See `docs\UI_ROADMAP.md`.
+CustomTkinter modernization is now the active v3.0 UI shell direction. See
+`docs\UI_ROADMAP.md`.
 
 ## What Was Fixed
 - Replaced the placeholder Tkinter screen with a real calibration panel.
@@ -189,7 +202,7 @@ changed for that research. See `docs\UI_ROADMAP.md`.
 - The final installed-mode payload has clean default settings and no runtime logs, recall state, or source files.
 
 ## Next Safe Step
-- Run v2.9 repo validation and installer build.
+- Run v3.0 repo validation and installer build.
 - If Inno Setup is missing, install it with `winget install JRSoftware.InnoSetup` and rerun `scripts\build_installer.ps1`.
-- Keep CustomTkinter modernization as a separate future prototype; do not mix it into the validated v2.8 release.
+- Do not publish v3.0 until the manual UI test checklist passes.
 
