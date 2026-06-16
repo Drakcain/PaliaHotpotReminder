@@ -1,12 +1,12 @@
 # PaliaHotpotReminder Installed Mode
 
 ## Purpose
-`v3.0` preserves the installed-first Windows utility model and updates the runtime UI shell to CustomTkinter with a High-Contrast Black + Purple style.
+`v3.1` preserves the installed-first Windows utility model and updates the runtime UI shell to CustomTkinter with a High-Contrast Black + Purple style.
 
 Normal users should use:
 
 ```text
-PaliaHotpotReminder-Setup-v3.0.exe
+PaliaHotpotReminder-Setup-v3.1.exe
 ```
 
 ## Install Path
@@ -52,8 +52,8 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\build_installe
 Expected outputs:
 
 ```text
-dist\PaliaHotpotReminder-Setup-v3.0.exe
-dist\PaliaHotpotReminder-Setup-v3.0.exe.sha256
+dist\PaliaHotpotReminder-Setup-v3.1.exe
+dist\PaliaHotpotReminder-Setup-v3.1.exe.sha256
 ```
 
 The build script stages app files under `build\installer-payload` for Inno Setup. That staging folder is disposable and is not a release artifact.
@@ -79,6 +79,11 @@ exports\
 ```
 
 `config\settings.example.json` may be updated by new releases. `config\settings.json` is only installed when missing.
+
+During upgrade, the installer now tries to close a running `Hotpot-Remind.exe`
+instance automatically before replacing files. It targets only HPR's own EXE,
+tries a normal close first, then forces only `Hotpot-Remind.exe` if it is still
+running. It does not target Palia or unrelated processes.
 
 ## Uninstall Behavior
 The installer creates a normal Windows uninstall entry. User runtime data is not aggressively deleted by default, so support logs, exports, and personal settings can survive uninstall/reinstall workflows.

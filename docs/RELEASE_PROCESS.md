@@ -5,13 +5,17 @@ publish the Inno Setup installer and its checksum only.
 
 ## Release Truth
 
-- Current version: `v3.0`
-- Primary artifact: `PaliaHotpotReminder-Setup-v3.0.exe`
-- Checksum artifact: `PaliaHotpotReminder-Setup-v3.0.exe.sha256`
+- Current version: `v3.1`
+- Primary artifact: `PaliaHotpotReminder-Setup-v3.1.exe`
+- Checksum artifact: `PaliaHotpotReminder-Setup-v3.1.exe.sha256`
 - Install target: `C:\Tools\PaliaHotpotReminder`
 - Main executable: `C:\Tools\PaliaHotpotReminder\Hotpot-Remind.exe`
 
 Portable ZIP files are not the normal release path.
+
+Installer upgrades should pre-close `Hotpot-Remind.exe` before file
+replacement. The installer targets only HPR's own EXE and does not target
+Palia or unrelated processes.
 
 ## Before Publishing
 
@@ -37,11 +41,11 @@ Confirm:
 
 ## GitHub Publishing
 
-For `v3.0`, publish these release assets:
+For `v3.1`, publish these release assets:
 
 ```text
-PaliaHotpotReminder-Setup-v3.0.exe
-PaliaHotpotReminder-Setup-v3.0.exe.sha256
+PaliaHotpotReminder-Setup-v3.1.exe
+PaliaHotpotReminder-Setup-v3.1.exe.sha256
 ```
 
 Use `docs\CHANGELOG.md` as the source of release history and release-note facts.

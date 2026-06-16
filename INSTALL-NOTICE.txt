@@ -1,6 +1,6 @@
 PaliaHotpotReminder - IMPORTANT NOTICE
 
-Current release: v3.0
+Current release: v3.1
 
 PaliaHotpotReminder is an independent external helper utility for Palia Hotpot.
 It is not affiliated with, authorized by, sponsored by, or endorsed by Palia,

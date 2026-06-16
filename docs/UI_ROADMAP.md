@@ -1,13 +1,20 @@
 # UI Roadmap
 
-This document tracks the current HPR UI rules and the v3.0 CustomTkinter
-modernization direction.
+This document tracks the current HPR UI rules and the v3.1 modular
+CustomTkinter direction.
 
 ## Current UI State
 
-- Production UI is Python with a CustomTkinter runtime shell.
+- Production UI is Python with a modular CustomTkinter runtime shell.
 - Styling is centralized through `src\theme.py`.
-- `src\ui.py` should read theme values from `src\theme.py`.
+- `src\ui.py` is the coordinator/controller and should not own large layout
+  blocks.
+- `src\ui_shell.py` owns the app shell, header, sidebar, page container, and
+  active page switching.
+- `src\ui_pages\` owns the focused section page layouts.
+- `src\ui_state.py` owns UI-only display/activity state.
+- `src\ui_actions.py` owns thin UI callback wrappers around existing app
+  methods.
 - `theme` remains a persisted config value and defaults to `dark`.
 - Dark Mode requests the native Windows dark title bar on supported builds while
   preserving the standard window frame and controls.
@@ -57,10 +64,12 @@ Future visual reference:
 - https://customtkinter.tomschimansky.com/documentation/
 - https://github.com/TomSchimansky/CustomTkinter/blob/master/documentation_images/complex_example_dark_Windows.png
 
-The v3.0 direction is a black/purple desktop dashboard inspired by the official
+The v3.1 direction is a black/purple desktop dashboard inspired by the official
 CustomTkinter complex example and the user's black/purple VS Code workspace:
 
 - persistent left navigation
+- real page switching
+- active sidebar highlight
 - rounded, clearly separated cards
 - compact status summaries
 - modern switches and buttons
@@ -72,25 +81,32 @@ CustomTkinter complex example and the user's black/purple VS Code workspace:
 This is visual inspiration, not a request to copy the example layout or replace
 HPR's identity.
 
-## Proposed Future Layout
+## Current Layout
 
 Sidebar:
 
 - Dashboard
 - Clock Setup
 - Reminders
+- Automation
 - Diagnostics
 - Settings
 
-Dashboard cards:
+Dashboard:
 
-- Clock status
-- Reminder status
-- Quick actions
-- Runtime health
+- At-a-glance overview only.
+- Palia, clock, reminder, automation, and recent activity summary.
+- Shortcut buttons that send the user to the correct section page.
 
-Settings and diagnostics should remain available without crowding the beginner
-Dashboard path.
+Section pages:
+
+- Clock Setup owns Setup Clock, Test Clock, region, nudge, and OCR tools.
+- Reminders owns Start/Stop, Test Popup, reminder rules, and popup settings.
+- Automation owns startup, auto-arm, tray/window behavior, and shortcut repair.
+- Diagnostics owns logs, support exports, activity, and debug details.
+- Settings owns theme/window settings and the professional About HPR section.
+
+Dashboard should not become a dump of every control again.
 
 ## Asset And Branding Rules
 

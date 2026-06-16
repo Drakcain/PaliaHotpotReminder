@@ -112,8 +112,8 @@ foreach ($path in $versionFiles) {
     $full = Join-Path $repoRoot $path
     if (Test-Path -LiteralPath $full) {
         $text = Get-Content -LiteralPath $full -Raw
-        if ($text -notmatch 'v3\.0|3\.0') {
-            Add-Failure "No v3.0/3.0 reference found in $path"
+        if ($text -notmatch 'v3\.1|3\.1') {
+            Add-Failure "No v3.1/3.1 reference found in $path"
         }
     }
 }
@@ -124,13 +124,17 @@ foreach ($pattern in @(
     'DefaultDirName=C:\\Tools\\PaliaHotpotReminder',
     'PrivilegesRequired=admin',
     'MyPayloadDir',
+    'CloseApplications=no',
+    'PrepareToInstall',
+    'Hotpot-Remind\.exe',
+    'taskkill /IM',
     'onlyifdoesntexist',
     'uninsneveruninstall',
     'InfoBeforeFile=\.\.\\INSTALL-NOTICE\.txt',
     'THIRD-PARTY-NOTICES\.md',
     'SIGNING\.md',
     '\.\.\\VERSION',
-    'PaliaHotpotReminder-Setup-v3\.0'
+    'PaliaHotpotReminder-Setup-v3\.1'
 )) {
     if ($iss -notmatch $pattern) {
         Add-Failure "Installer script missing expected pattern: $pattern"
@@ -143,7 +147,7 @@ foreach ($pattern in @(
     'installed Windows reminder utility',
     'assets/Branding/Palia-HPR-brand-banner\.png',
     'Users download one file',
-    'PaliaHotpotReminder-Setup-v3\.0\.exe',
+    'PaliaHotpotReminder-Setup-v3\.1\.exe',
     'C:\\Tools\\PaliaHotpotReminder'
 )) {
     if ($readme -notmatch $pattern) {
@@ -164,7 +168,7 @@ $docsText = @(
 foreach ($pattern in @(
     'installer-first|installed Windows reminder utility',
     'C:\\Tools\\PaliaHotpotReminder',
-    'PaliaHotpotReminder-Setup-v3\.0\.exe',
+    'PaliaHotpotReminder-Setup-v3\.1\.exe',
     'does not modify Palia',
     'read game memory',
     'inject|hook',
@@ -212,8 +216,8 @@ Write-Host '==> Checking release process and changelog truth' -ForegroundColor C
 $releaseProcess = Get-Content -LiteralPath (Join-Path $repoRoot 'docs\RELEASE_PROCESS.md') -Raw
 foreach ($pattern in @(
     'Release Process',
-    'PaliaHotpotReminder-Setup-v3\.0\.exe',
-    'PaliaHotpotReminder-Setup-v3\.0\.exe\.sha256',
+    'PaliaHotpotReminder-Setup-v3\.1\.exe',
+    'PaliaHotpotReminder-Setup-v3\.1\.exe\.sha256',
     'C:\\Tools\\PaliaHotpotReminder',
     'Portable ZIP files are not the normal release path',
     'No Palia memory reading',
@@ -221,7 +225,8 @@ foreach ($pattern in @(
     'No network inspection',
     'No gameplay automation',
     'No game file edits',
-    'Only OCRs the user-selected visible clock region'
+    'Only OCRs the user-selected visible clock region',
+    'CloseApplications=no|Hotpot-Remind\.exe|taskkill'
 )) {
     if ($releaseProcess -notmatch $pattern) {
         Add-Failure "Release process doc missing expected pattern: $pattern"
@@ -230,11 +235,12 @@ foreach ($pattern in @(
 
 $changelog = Get-Content -LiteralPath (Join-Path $repoRoot 'docs\CHANGELOG.md') -Raw
 foreach ($pattern in @(
+    '## v3\.1',
     '## v3\.0',
     '## v2\.9',
     '## v2\.8',
     'Installer-first|installer-first',
-    'PaliaHotpotReminder-Setup-v3\.0\.exe',
+    'PaliaHotpotReminder-Setup-v3\.1\.exe',
     'PaliaHotpotReminder-v2\.8-portable\.zip',
     'No gameplay automation'
 )) {
@@ -257,22 +263,36 @@ foreach ($pattern in @(
     }
 }
 
-Write-Host '==> Checking CustomTkinter v3.0 UI modernization wiring' -ForegroundColor Cyan
+Write-Host '==> Checking CustomTkinter v3\.1 UI modernization wiring' -ForegroundColor Cyan
 $uiSource = Get-Content -LiteralPath (Join-Path $repoRoot 'src\ui.py') -Raw
 $mainSource = Get-Content -LiteralPath (Join-Path $repoRoot 'src\main.py') -Raw
 $themeSource = Get-Content -LiteralPath (Join-Path $repoRoot 'src\theme.py') -Raw
 $buildScript = Get-Content -LiteralPath (Join-Path $repoRoot 'scripts\build_installer.ps1') -Raw
+$shellSource = Get-Content -LiteralPath (Join-Path $repoRoot 'src\ui_shell.py') -Raw
+$stateSource = Get-Content -LiteralPath (Join-Path $repoRoot 'src\ui_state.py') -Raw
+$actionsSource = Get-Content -LiteralPath (Join-Path $repoRoot 'src\ui_actions.py') -Raw
+$pageIndexSource = Get-Content -LiteralPath (Join-Path $repoRoot 'src\ui_pages\__init__.py') -Raw
 foreach ($pattern in @(
     'import customtkinter as ctk',
     'CTkScrollableFrame',
     'StatusChip',
+    'UIShell',
+    'UIState',
+    'UIActions',
+    'PAGE_BUILDERS',
+    'build_dashboard_page',
+    'build_clock_setup_page',
+    'build_reminders_page',
+    'build_automation_page',
+    'build_diagnostics_page',
+    'build_settings_page',
     'High-Contrast Black Purple|HPR High-Contrast Black Purple',
     'customtkinter',
     '--collect-data'
 )) {
-    $haystack = ($uiSource, $mainSource, $themeSource, $buildScript) -join "`n"
+    $haystack = ($uiSource, $mainSource, $themeSource, $buildScript, $shellSource, $stateSource, $actionsSource, $pageIndexSource) -join "`n"
     if ($haystack -notmatch $pattern) {
-        Add-Failure "CustomTkinter v3.0 wiring missing expected pattern: $pattern"
+        Add-Failure "CustomTkinter v3\.1 wiring missing expected pattern: $pattern"
     }
 }
 

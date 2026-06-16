@@ -1,5 +1,40 @@
 # Changelog
 
+## v3.1
+
+### Modular UI Architecture
+
+- Refined the v3.0 CustomTkinter shell into a modular UI architecture.
+- Added `src\ui_shell.py`, `src\ui_state.py`, `src\ui_actions.py`, and a real
+  `src\ui_pages\` package.
+- Added real sidebar page navigation for Dashboard, Clock Setup, Reminders,
+  Automation, Diagnostics, and Settings.
+- Converted Dashboard into an at-a-glance overview instead of a dump of every
+  control.
+- Moved clock/OCR controls, reminder controls, automation/tray settings,
+  diagnostics, and Settings/About content into focused section pages.
+- Added a professional About HPR section with app identity, installer-first
+  release facts, support guidance, affiliation disclaimer, and OCR-only safety
+  boundary.
+
+### Distribution
+
+- Installer-first distribution remains unchanged.
+- Primary release artifact is `PaliaHotpotReminder-Setup-v3.1.exe`.
+- Checksum artifact is `PaliaHotpotReminder-Setup-v3.1.exe.sha256`.
+- Installs to `C:\Tools\PaliaHotpotReminder`.
+- Installer upgrades now pre-close a running `Hotpot-Remind.exe` before file
+  replacement, with a graceful-close attempt followed by a force-close fallback
+  limited to HPR's own EXE.
+
+### Safety Boundary
+
+- No OCR, reminder, process watcher, tray, startup, or config backend behavior
+  was rewritten.
+- No gameplay automation was added.
+- No game memory reading, injection, hooking, network inspection, or game file
+  edits were added.
+
 ## v3.0
 
 ### UI Modernization

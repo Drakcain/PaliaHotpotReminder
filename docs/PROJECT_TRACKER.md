@@ -1,5 +1,29 @@
 # Project Tracker
 
+## v3.1 Modular CustomTkinter UI Architecture
+
+- Checkpointed the successful v3.0 CustomTkinter shell before refactoring.
+- Split the runtime UI into a modular shell/page architecture:
+  - `src\ui_shell.py`
+  - `src\ui_state.py`
+  - `src\ui_actions.py`
+  - `src\ui_pages\`
+- Added real sidebar page navigation for Dashboard, Clock Setup, Reminders,
+  Automation, Diagnostics, and Settings.
+- Dashboard is now an at-a-glance overview only.
+- Section pages now own settings/actions:
+  - Clock Setup owns Setup Clock, Test Clock, region, nudge, and OCR state.
+  - Reminders owns Start/Stop, Test Popup, reminder rules, and popup settings.
+  - Automation owns startup, auto-arm, tray/window behavior, and shortcut repair.
+  - Diagnostics owns logs, support actions, activity, and debug details.
+  - Settings owns theme/window settings and the professional About HPR section.
+- High-Contrast Black + Purple styling remains the active visual direction.
+- Existing OCR, reminder, process watcher, tray, startup, logging, debug report,
+  and installed-first behavior remain protected.
+- Installer hardening now closes a running `Hotpot-Remind.exe` during upgrade so
+  file replacement does not stall on the default Inno files-in-use prompt.
+- Target artifact is `PaliaHotpotReminder-Setup-v3.1.exe`.
+
 ## v3.0 CustomTkinter UI Modernization
 
 - Replaced the classic Tkinter-looking runtime shell with a CustomTkinter shell.
@@ -12,7 +36,7 @@
   single-instance, and installed-first behavior.
 - Added `customtkinter` to the build/runtime dependency list and PyInstaller
   data collection.
-- Target artifact is `PaliaHotpotReminder-Setup-v3.0.exe`.
+- Target artifact was `PaliaHotpotReminder-Setup-v3.0.exe`.
 
 ## v2.9 Professional Repo Alignment
 
@@ -42,7 +66,7 @@
 - Did not add a root `LICENSE`; project license choice remains a required owner decision.
 
 ## Current Task
-The active pass is `v3.0`: CustomTkinter UI shell modernization with a High-Contrast Black + Purple visual style. Smart Resume, safe local Smart Recall, tray/refocus recovery, Start Reminder/Test Clock preflight, Debug / Support finalization, and asynchronous cancellable Setup Clock remain protected.
+The active pass is `v3.1`: modular CustomTkinter UI architecture with real sidebar page navigation. Smart Resume, safe local Smart Recall, tray/refocus recovery, Start Reminder/Test Clock preflight, Debug / Support finalization, and asynchronous cancellable Setup Clock remain protected.
 
 ## v2.9 Installer Behavior
 - Added an Inno Setup installer wizard targeting `C:\Tools\PaliaHotpotReminder`.
@@ -68,7 +92,7 @@ The active pass is `v3.0`: CustomTkinter UI shell modernization with a High-Cont
 - Extended self-test coverage for recall read/write/corruption, readiness decisions, monitor fingerprints, debug report sections, and the full risky parser matrix.
 - Packaging excludes runtime recall state and continues to ship a clean setup.
 
-CustomTkinter modernization is now the active v3.0 UI shell direction. See
+CustomTkinter modernization is now the active v3.1 modular UI direction. See
 `docs\UI_ROADMAP.md`.
 
 ## What Was Fixed
@@ -202,7 +226,7 @@ CustomTkinter modernization is now the active v3.0 UI shell direction. See
 - The final installed-mode payload has clean default settings and no runtime logs, recall state, or source files.
 
 ## Next Safe Step
-- Run v3.0 repo validation and installer build.
+- Run v3.1 repo validation and installer build.
 - If Inno Setup is missing, install it with `winget install JRSoftware.InnoSetup` and rerun `scripts\build_installer.ps1`.
-- Do not publish v3.0 until the manual UI test checklist passes.
+- Do not publish v3.1 until the manual UI test checklist passes.
 

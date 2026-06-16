@@ -40,7 +40,11 @@ from smart_resume import SmartResumeResult, evaluate_smart_resume
 from state import PaliaTimeTracker, TrackerSnapshot
 from paths import resolve_resource_path
 from theme import THEMES
-from ui_components import StatusChip, button, card, section_header, sidebar_button, switch
+from ui_actions import UIActions
+from ui_components import StatusChip, button, switch
+from ui_pages import PAGE_BUILDERS
+from ui_shell import UIShell
+from ui_state import UIState
 from watchlog import append_watch_log
 from tray_manager import TrayManager, tray_available
 from debug_report import build_debug_report, export_debug_report
@@ -175,7 +179,11 @@ class PaliaHotpotReminderUI:
         self.advanced_frame = None
         self.main_content = None
         self.activity_textbox = None
+        self.diagnostics_activity_textbox = None
         self.sidebar_buttons: dict[str, object] = {}
+        self.ui_shell: Optional[UIShell] = None
+        self.ui_state = UIState()
+        self.ui_actions = UIActions(self)
         self.palia_chip: Optional[StatusChip] = None
         self.reminder_chip: Optional[StatusChip] = None
         self.clock_chip: Optional[StatusChip] = None
@@ -431,313 +439,17 @@ class PaliaHotpotReminderUI:
             self._apply_theme_widget(child, colors)
 
     def _build(self) -> None:
-        ctk.set_appearance_mode("dark" if self._current_theme_name() == "dark" else "light")
-        ctk.set_default_color_theme("dark-blue")
         colors = self._theme()
-        self.root.minsize(980, 680)
-        self.root.resizable(True, True)
-
-        shell = ctk.CTkFrame(self.root, fg_color=colors["root_bg"], corner_radius=0)
-        shell.pack(fill="both", expand=True)
-        shell.grid_columnconfigure(1, weight=1)
-        shell.grid_rowconfigure(0, weight=1)
-
-        sidebar = ctk.CTkFrame(
-            shell,
-            width=190,
-            fg_color=colors["section_bg"],
-            border_color=colors["border"],
-            border_width=1,
-            corner_radius=0,
-        )
-        sidebar.grid(row=0, column=0, sticky="nsew")
-        sidebar.grid_propagate(False)
-
-        ctk.CTkLabel(
-            sidebar,
-            text="HPR",
-            text_color=colors["accent_bright"],
-            font=ctk.CTkFont(size=24, weight="bold"),
-        ).pack(anchor="w", padx=18, pady=(20, 0))
-        ctk.CTkLabel(
-            sidebar,
-            text="Black Purple\nControl Shell",
-            text_color=colors["muted_fg"],
-            justify="left",
-            font=ctk.CTkFont(size=12),
-        ).pack(anchor="w", padx=18, pady=(2, 18))
-
-        for label in ("Dashboard", "Clock Setup", "Reminders", "Automation", "Diagnostics", "Settings"):
-            btn = sidebar_button(
-                sidebar,
-                label,
-                lambda name=label: self._focus_section(name),
-                colors=colors,
-                active=(label == "Dashboard"),
-            )
-            btn.pack(fill="x", padx=14, pady=4)
-            self.sidebar_buttons[label] = btn
-
-        ctk.CTkLabel(
-            sidebar,
-            text="OCR-only helper\nNo game hooks\nNo automation",
-            text_color=colors["dim_fg"],
-            justify="left",
-            font=ctk.CTkFont(size=11),
-        ).pack(side="bottom", anchor="w", padx=18, pady=18)
-
-        self.main_content = ctk.CTkScrollableFrame(
-            shell,
-            fg_color=colors["root_bg"],
-            scrollbar_button_color=colors["accent_dark"],
-            scrollbar_button_hover_color=colors["accent_fg"],
-        )
-        self.main_content.grid(row=0, column=1, sticky="nsew", padx=18, pady=18)
-        self.main_content.grid_columnconfigure((0, 1), weight=1, uniform="cards")
-
-        header = ctk.CTkFrame(self.main_content, fg_color="transparent")
-        header.grid(row=0, column=0, columnspan=2, sticky="ew", pady=(0, 14))
-        header.grid_columnconfigure(0, weight=1)
-        title = section_header(
-            header,
-            f"Palia Hotpot Reminder {APP_VERSION}",
-            "OCR-only Hotpot helper utility",
-            colors=colors,
-        )
-        title.grid(row=0, column=0, sticky="w")
-        chips = ctk.CTkFrame(header, fg_color="transparent")
-        chips.grid(row=0, column=1, sticky="e")
-        self.palia_chip = StatusChip(chips, "Palia: Not Detected", colors=colors)
-        self.palia_chip.pack(side="left", padx=(0, 8))
-        self.reminder_chip = StatusChip(chips, "Reminder: Waiting", colors=colors)
-        self.reminder_chip.pack(side="left", padx=(0, 8))
-        self.clock_chip = StatusChip(chips, "Clock: Needed", colors=colors)
-        self.clock_chip.pack(side="left")
-
-        palia_card = card(self.main_content, "Palia Status", colors=colors, columns=2)
-        palia_card.grid(row=1, column=0, sticky="nsew", padx=(0, 8), pady=8)
-        self._add_display_row(palia_card, "Readiness", self.readiness_var, 1)
-        self._add_display_row(palia_card, "Palia process", self.palia_detected_var, 2)
-        self._add_display_row(palia_card, "Auto-arm", self.auto_arm_state_var, 3)
-        self._add_display_row(palia_card, "Status", self.status_var, 4)
-
-        clock_card = card(self.main_content, "Clock Setup", colors=colors, columns=2)
-        clock_card.grid(row=1, column=1, sticky="nsew", padx=(8, 0), pady=8)
-        self._add_display_row(clock_card, "Clock setup", self.clock_setup_state_var, 1)
-        self._add_display_row(clock_card, "Current region", self.region_var, 2)
-        self._add_display_row(clock_card, "Current time", self.current_palia_time_var, 3)
-        button_row = ctk.CTkFrame(clock_card, fg_color="transparent")
-        button_row.grid(row=4, column=0, columnspan=2, sticky="ew", padx=16, pady=(10, 14))
-        button(button_row, "Test Clock", self._test_ocr, colors=colors).pack(side="left", padx=(0, 8))
-        self.setup_clock_button = button(button_row, "Setup Clock", self._setup_clock, colors=colors, variant="primary")
-        self.setup_clock_button.pack(side="left")
-
-        reminder_card = card(self.main_content, "Reminder Status", colors=colors, columns=2)
-        reminder_card.grid(row=2, column=0, sticky="nsew", padx=(0, 8), pady=8)
-        self._add_display_row(reminder_card, "Reminder", self.reminder_status_var, 1)
-        self._add_display_row(reminder_card, "Next reminder", self.next_reminder_target_var, 2)
-        self._add_display_row(reminder_card, "Last fired", self.last_reminder_fired_var, 3)
-        reminder_buttons = ctk.CTkFrame(reminder_card, fg_color="transparent")
-        reminder_buttons.grid(row=4, column=0, columnspan=2, sticky="ew", padx=16, pady=(10, 14))
-        button(reminder_buttons, "Start Reminder", self._start_watching, colors=colors, variant="primary").pack(side="left", padx=(0, 8))
-        button(reminder_buttons, "Stop Reminder", self._stop_watching, colors=colors, variant="danger").pack(side="left", padx=(0, 8))
-        button(reminder_buttons, "Test Popup", self._test_custom_popup, colors=colors).pack(side="left")
-
-        automation = card(self.main_content, "Automation", colors=colors, columns=2)
-        automation.grid(row=2, column=1, sticky="nsew", padx=(8, 0), pady=8)
-        self._add_switch(automation, "Start with Windows", self.start_with_windows_var, 1, 0)
-        self._add_switch(automation, "Auto-arm when Palia opens", self.auto_arm_var, 1, 1)
-        self._add_switch(automation, "Start hidden in tray", self.start_minimized_var, 2, 0)
-        self._add_switch(automation, "Minimize to tray", self.minimize_to_tray_var, 2, 1)
-        self._add_switch(automation, "Close to tray", self.close_to_tray_var, 3, 0)
-        self._add_switch(automation, "Dark Mode", self.dark_mode_var, 3, 1)
-        auto_buttons = ctk.CTkFrame(automation, fg_color="transparent")
-        auto_buttons.grid(row=4, column=0, columnspan=2, sticky="ew", padx=16, pady=(10, 14))
-        button(auto_buttons, "Create Desktop Shortcut", self._create_desktop_shortcut, colors=colors, width=170).pack(side="left", padx=(0, 8))
-        button(auto_buttons, "Reload Settings", self._reload_convenience_settings, colors=colors).pack(side="left", padx=(0, 8))
-        button(auto_buttons, "Show Window", self._show_from_tray, colors=colors).pack(side="left")
-
-        activity = card(self.main_content, "Recent Activity", colors=colors, columns=1)
-        activity.grid(row=3, column=0, sticky="nsew", padx=(0, 8), pady=8)
-        self.activity_textbox = ctk.CTkTextbox(
-            activity,
-            height=150,
-            fg_color=colors["field_bg"],
-            border_color=colors["border"],
-            border_width=1,
-            text_color=colors["text_fg"],
-            corner_radius=10,
-        )
-        self.activity_textbox.grid(row=1, column=0, sticky="nsew", padx=16, pady=(0, 14))
-        self.activity_textbox.configure(state="disabled")
-        self._add_activity("UI shell ready")
-
-        diagnostics = card(self.main_content, "Diagnostics / Support", colors=colors, columns=2)
-        diagnostics.grid(row=3, column=1, sticky="nsew", padx=(8, 0), pady=8)
-        self._add_display_row(diagnostics, "Debug Log", self.debug_log_state_var, 1)
-        self._add_display_row(diagnostics, "Tray", self.tray_state_var, 2)
-        self._add_display_row(diagnostics, "Details", self.diagnostic_var, 3)
-        diag_buttons = ctk.CTkFrame(diagnostics, fg_color="transparent")
-        diag_buttons.grid(row=4, column=0, columnspan=2, sticky="ew", padx=16, pady=(10, 14))
-        button(diag_buttons, "Debug / Support", self._toggle_advanced_settings, colors=colors).pack(side="left", padx=(0, 8))
-        button(diag_buttons, "Debug Report", self._show_debug_report, colors=colors).pack(side="left", padx=(0, 8))
-        button(diag_buttons, "Open Logs", self._open_logs_folder, colors=colors).pack(side="left")
-
-        self.advanced_frame = ctk.CTkFrame(self.main_content, fg_color="transparent")
-        self.advanced_frame.grid(row=4, column=0, columnspan=2, sticky="ew", pady=8)
-        self.advanced_frame.grid_columnconfigure((0, 1), weight=1, uniform="advanced")
-
-        form = card(self.advanced_frame, "Clock Region", colors=colors, columns=2)
-        form.grid(row=0, column=0, sticky="nsew", padx=(0, 8), pady=8)
-
-        self._add_field(form, "Left", self.left_var, 0)
-        self._add_field(form, "Top", self.top_var, 1)
-        self._add_field(form, "Width", self.width_var, 2)
-        self._add_field(form, "Height", self.height_var, 3)
-
-        nudge = card(self.advanced_frame, "Nudge Controls", colors=colors, columns=1)
-        nudge.grid(row=0, column=1, sticky="nsew", padx=(8, 0), pady=8)
-
-        self._add_nudge_row(
-            nudge,
-            "Move",
-            [
-                ("Left -5", lambda: self._nudge("left", -5)),
-                ("Left +5", lambda: self._nudge("left", 5)),
-                ("Up -5", lambda: self._nudge("top", -5)),
-                ("Down +5", lambda: self._nudge("top", 5)),
-            ],
-        )
-        self._add_nudge_row(
-            nudge,
-            "Big Move",
-            [
-                ("Left -25", lambda: self._nudge("left", -25)),
-                ("Left +25", lambda: self._nudge("left", 25)),
-                ("Up -25", lambda: self._nudge("top", -25)),
-                ("Down +25", lambda: self._nudge("top", 25)),
-            ],
-        )
-        self._add_nudge_row(
-            nudge,
-            "Size",
-            [
-                ("Wider +10", lambda: self._nudge("width", 10)),
-                ("Narrower -10", lambda: self._nudge("width", -10)),
-                ("Taller +10", lambda: self._nudge("height", 10)),
-                ("Shorter -10", lambda: self._nudge("height", -10)),
-            ],
-        )
-
-        actions = card(self.advanced_frame, "Validation", colors=colors, columns=1)
-        actions.grid(row=1, column=0, sticky="nsew", padx=(0, 8), pady=8)
-        for text, command in (
-            ("Open Preview Image", self._open_preview_image),
-            ("Open Screen Diagnostic", self._open_screen_diagnostic),
-            ("Test System Popup", self._test_system_popup),
-            ("Test Custom Popup", self._test_custom_popup),
-            ("Reset to Default Region", self._reset_default_region),
-        ):
-            button(actions, text, command, colors=colors, width=190).grid(sticky="ew", padx=16, pady=3)
-
-        reminders = card(self.advanced_frame, "Reminder Rules", colors=colors, columns=2)
-        reminders.grid(row=1, column=1, sticky="nsew", padx=(8, 0), pady=8)
-        self._add_switch(reminders, "Reminders Enabled", self.reminders_enabled_var, 1, 0, command=lambda: None)
-        self._add_switch(reminders, "Stale Warning Enabled", self.stale_warning_enabled_var, 1, 1, command=lambda: None)
-        self._add_field(reminders, "Reminder Cooldown (sec)", self.reminder_cooldown_var, 2)
-        self._add_display_row(reminders, "Hotpot Window", self.hotpot_window_var, 4)
-        ctk.CTkLabel(reminders, text="Hotpot Warning Times", text_color=colors["muted_fg"]).grid(row=5, column=0, sticky="w", padx=16, pady=4)
-        ctk.CTkEntry(reminders, textvariable=self.hotpot_warning_times_var, fg_color=colors["field_bg"], border_color=colors["border"], text_color=colors["text_fg"], width=260).grid(row=5, column=1, sticky="ew", padx=(8, 16), pady=4)
-        button(reminders, "Save Reminder Settings", self._save_reminder_settings_from_fields, colors=colors).grid(row=6, column=0, sticky="ew", padx=16, pady=(10, 14))
-        button(reminders, "Reload Reminder Settings", self._reload_reminder_settings, colors=colors).grid(row=6, column=1, sticky="ew", padx=(8, 16), pady=(10, 14))
-
-        popup = card(self.advanced_frame, "Popup Settings", colors=colors, columns=2)
-        popup.grid(row=2, column=0, sticky="nsew", padx=(0, 8), pady=8)
-        self._add_option(popup, "Popup Style", self.popup_style_var, 0, ["custom", "system", "auto"])
-        self._add_field(popup, "Popup Duration (sec)", self.popup_duration_var, 1)
-        self._add_field(popup, "Popup Position", self.popup_position_var, 2)
-        self._add_field(popup, "Popup Asset Path", self.popup_asset_path_var, 3, width=30)
-        self._add_field(popup, "Popup Width", self.popup_width_var, 4)
-        self._add_field(popup, "Popup Height", self.popup_height_var, 5)
-        self._add_field(popup, "Popup Left Margin", self.popup_left_margin_var, 6)
-        self._add_field(popup, "Popup Top Margin", self.popup_top_margin_var, 7)
-        button(popup, "Save Popup Settings", self._save_popup_settings_from_fields, colors=colors).grid(row=8, column=0, sticky="ew", padx=16, pady=(10, 14))
-        button(popup, "Reload Popup Settings", self._reload_popup_settings, colors=colors).grid(row=8, column=1, sticky="ew", padx=(8, 16), pady=(10, 14))
-
-        debug = card(self.advanced_frame, "Debug / Support", colors=colors, columns=2)
-        debug.grid(row=2, column=1, sticky="nsew", padx=(8, 0), pady=8)
-        debug_actions = (
-            ("Debug Report", self._show_debug_report),
-            ("Export Debug Report", self._export_debug_report),
-            ("Copy Debug Report", self._copy_debug_report),
-            ("Open Logs Folder", self._open_logs_folder),
-            ("Copy Palia Process Audit", self._copy_palia_process_audit),
-            ("View Debug Log", self._view_latest_log),
-            ("Copy Clock OCR Debug", self._copy_clock_ocr_debug),
-            ("Open latest.log", self._open_latest_log),
-            ("Copy Smart Resume Debug", self._copy_smart_resume_debug),
-            ("Open Startup Folder", self._open_startup_folder),
-            ("Remove Startup Shortcut", self._remove_startup_shortcut),
-            ("Recreate Startup Shortcut", self._recreate_startup_shortcut),
-        )
-        for index, (text, command) in enumerate(debug_actions, start=1):
-            button(debug, text, command, colors=colors, width=190).grid(row=index, column=index % 2, sticky="ew", padx=16, pady=3)
-        self._add_switch(debug, "Debug logging", self.debug_logging_var, 8, 0)
-        self._add_switch(debug, "Debug verbose", self.debug_verbose_var, 8, 1)
-
-        display = card(self.advanced_frame, "Clock State", colors=colors, columns=2)
-        display.grid(row=3, column=0, sticky="nsew", padx=(0, 8), pady=8)
-        self._add_display_row(display, "Mode", self.mode_var, 0)
-        self._add_display_row(display, "Raw OCR", self.raw_ocr_var, 1)
-        self._add_display_row(display, "Normalized OCR", self.normalized_ocr_var, 2)
-        self._add_display_row(display, "Parsed time", self.parsed_time_var, 3)
-        self._add_display_row(display, "Current Palia time", self.current_palia_time_var, 4)
-        self._add_display_row(display, "Last confirmed Palia time", self.last_confirmed_var, 5)
-        self._add_display_row(display, "Estimated Palia time", self.estimated_var, 6)
-        self._add_display_row(display, "Seconds since confirmed", self.seconds_since_confirmed_var, 7)
-
-        reminder_state = card(self.advanced_frame, "Reminder Diagnostics", colors=colors, columns=2)
-        reminder_state.grid(row=3, column=1, sticky="nsew", padx=(8, 0), pady=8)
-        self._add_display_row(reminder_state, "Palia status", self.palia_detected_var, 0)
-        self._add_display_row(reminder_state, "Auto-arm", self.auto_arm_state_var, 1)
-        self._add_display_row(reminder_state, "Clock setup", self.clock_setup_state_var, 2)
-        self._add_display_row(reminder_state, "Startup shortcut", self.startup_shortcut_state_var, 3)
-        self._add_display_row(reminder_state, "Reminders enabled", self.reminders_enabled_state_var, 4)
-        self._add_display_row(reminder_state, "Last reminder fired", self.last_reminder_fired_var, 5)
-        self._add_display_row(reminder_state, "Next reminder target", self.next_reminder_target_var, 6)
-        self._add_display_row(reminder_state, "Reminder text", self.reminder_text_var, 7)
-        self._add_display_row(reminder_state, "Reminder status", self.reminder_status_var, 8)
-        self._add_display_row(reminder_state, "Reminder details", self.reminder_diagnostic_var, 9)
-
-        info = card(self.advanced_frame, "System Status", colors=colors, columns=2)
-        info.grid(row=4, column=0, columnspan=2, sticky="nsew", pady=8)
-        self._add_display_row(info, "Detected screen", self.resolution_var, 0)
-        self._add_display_row(info, "Screen diagnostics", self.screen_diag_var, 1)
-        self._add_display_row(info, "Current clock region", self.region_var, 2)
-        self._add_display_row(info, "Timing ratio", self.time_ratio_var, 3)
-        self._add_display_row(info, "Tesseract", self.tesseract_var, 4)
-        self._add_display_row(info, "Setup", self.setup_state_var, 5)
-        self._add_display_row(info, "Startup shortcut", self.startup_shortcut_state_var, 6)
-        self._add_display_row(info, "Tray", self.tray_state_var, 7)
-        self._add_display_row(info, "Auto-arm", self.auto_arm_state_var, 8)
-        self._add_display_row(info, "Reminder enabled", self.reminders_enabled_state_var, 9)
-        self._add_display_row(info, "Debug Log", self.debug_log_state_var, 10)
-        self._add_display_row(info, "Status", self.status_var, 11)
-        self._add_display_row(info, "Diagnostics", self.diagnostic_var, 12)
-        ctk.CTkLabel(
-            info,
-            text="Each PC may need its own clock setup.",
-            anchor="w",
-            justify="left",
-            text_color=colors["muted_fg"],
-        ).grid(row=13, column=0, columnspan=2, sticky="w", padx=16, pady=(6, 14))
+        self.ui_shell = UIShell(self.root, self, colors, PAGE_BUILDERS)
+        self.ui_shell.build()
+        self.sidebar_buttons = self.ui_shell.sidebar_buttons
+        self.main_content = self.ui_shell.page_container
 
         for variable in (self.palia_detected_var, self.reminder_status_var, self.clock_setup_state_var, self.readiness_var):
             variable.trace_add("write", lambda *_: self._refresh_status_chips())
         self.status_var.trace_add("write", lambda *_: self._add_activity(self.status_var.get()))
 
         self._set_advanced_visible(False)
-
     def _add_field(self, parent: tk.Widget, label: str, variable: tk.StringVar, row: int, width: int = 12) -> None:
         colors = self._theme()
         ctk.CTkLabel(parent, text=label, text_color=colors["muted_fg"]).grid(row=row + 1, column=0, sticky="w", padx=16, pady=4)
@@ -807,31 +519,24 @@ class PaliaHotpotReminderUI:
         )
 
     def _focus_section(self, section_name: str) -> None:
-        self._add_activity(f"Focused {section_name}")
-        colors = self._theme()
-        for label, widget in self.sidebar_buttons.items():
-            try:
-                widget.configure(
-                    fg_color=colors["accent_dark"] if label == section_name else "transparent",
-                    border_width=1 if label == section_name else 0,
-                    text_color=colors["text_fg"] if label == section_name else colors["muted_fg"],
-                )
-            except Exception:
-                pass
+        if self.ui_shell is not None:
+            self.ui_shell.show_page(section_name)
+            return
+        self.ui_state.current_page = section_name
+        self._add_activity(f"Opened {section_name}")
 
     def _add_activity(self, message: str) -> None:
-        timestamp = datetime.now().strftime("%H:%M")
-        self.activity_items.insert(0, f"[{timestamp}] {message}")
-        self.activity_items = self.activity_items[:8]
-        if self.activity_textbox is None:
-            return
-        try:
-            self.activity_textbox.configure(state="normal")
-            self.activity_textbox.delete("1.0", "end")
-            self.activity_textbox.insert("1.0", "\n".join(self.activity_items))
-            self.activity_textbox.configure(state="disabled")
-        except Exception:
-            pass
+        self.activity_items = self.ui_state.add_activity(message)
+        for textbox in (self.activity_textbox, self.diagnostics_activity_textbox):
+            if textbox is None:
+                continue
+            try:
+                textbox.configure(state="normal")
+                textbox.delete("1.0", "end")
+                textbox.insert("1.0", "\n".join(self.activity_items))
+                textbox.configure(state="disabled")
+            except Exception:
+                pass
 
     def _refresh_status_chips(self) -> None:
         palia_text = self.palia_detected_var.get()
