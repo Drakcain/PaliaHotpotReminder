@@ -1,5 +1,18 @@
 # Project Tracker
 
+## v3.1.2 Popup Alignment + Reminder Chip Flow
+
+- Moved popup text lower so the reminder body sits in the parchment center.
+- Separated footer/detail into its own lower lane so it does not crowd the main
+  reminder text.
+- Updated the top reminder status chip to use the operator flow:
+  - `Reminder: Not Ready`
+  - `Reminder: Started`
+  - `Reminder: Stopped`
+- Preserved reminder timing, OCR, process watching, tray behavior, startup
+  behavior, and installer close-running-HPR logic.
+- Target artifact is `PaliaHotpotReminder-Setup-v3.1.2.exe`.
+
 ## v3.1.1 Fixed-Window UI Polish
 
 - Locked HPR into a fixed-size desktop window.
@@ -77,7 +90,7 @@
 - Did not add a root `LICENSE`; project license choice remains a required owner decision.
 
 ## Current Task
-The active pass is `v3.1.1`: fixed-window UI polish on top of the released v3.1 modular CustomTkinter architecture. Smart Resume, safe local Smart Recall, tray/refocus recovery, Start Reminder/Test Clock preflight, Debug / Support finalization, and asynchronous cancellable Setup Clock remain protected.
+The active pass is `v3.1.2`: popup alignment and reminder chip flow polish on top of the released v3.1 modular CustomTkinter architecture. Smart Resume, safe local Smart Recall, tray/refocus recovery, Start Reminder/Test Clock preflight, Debug / Support finalization, and asynchronous cancellable Setup Clock remain protected.
 
 ## v2.9 Installer Behavior
 - Added an Inno Setup installer wizard targeting `C:\Tools\PaliaHotpotReminder`.

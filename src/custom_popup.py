@@ -22,12 +22,67 @@ except Exception:  # pragma: no cover - optional dependency fallback
     mss = None
 
 
-DEFAULT_POPUP_SIZE = (560, 420)
+DEFAULT_POPUP_SIZE = (760, 580)
 DEFAULT_LEFT_MARGIN = 24
 DEFAULT_TOP_MARGIN = 250
 DEFAULT_DURATION_SECONDS = 8
 DEFAULT_ASSET_PATH = PROJECT_ROOT / "assets" / "Message Board" / "popup_scroll_clean.png"
 TRANSPARENT_COLOR = "#010203"
+ART_MIN_POPUP_SIZE = (760, 580)
+CONTENT_X_RATIO = 0.15
+CONTENT_Y_RATIO = 0.295
+CONTENT_W_RATIO = 0.70
+CONTENT_H_RATIO = 0.53
+TITLE_GLOBAL_Y_RATIO = 0.455
+UPPER_DIVIDER_GLOBAL_Y_RATIO = 0.530
+BODY_LINE_1_GLOBAL_Y_RATIO = 0.595
+BODY_LINE_2_GLOBAL_Y_RATIO = 0.655
+LOWER_DIVIDER_GLOBAL_Y_RATIO = 0.735
+DETAIL_GLOBAL_Y_RATIO = 0.775
+CONTENT_INSET_X = 20
+CONTENT_INSET_Y = 14
+TITLE_SHADOW_OFFSET = 1
+BODY_SHADOW_OFFSET = 0
+TITLE_FILL = "#3A2413"
+TITLE_SHADOW = "#EAD2A6"
+BODY_FILL = "#3A2413"
+BODY_SHADOW = "#FFF3D4"
+DETAIL_FILL = "#4A2E18"
+DIVIDER_FILL = "#9A7648"
+DIVIDER_FADE = "#E7D3AA"
+ART_ASPECT_RATIO = 1448 / 1086
+
+
+def _content_box(width: int, height: int) -> tuple[int, int, int, int]:
+    left = int(width * CONTENT_X_RATIO)
+    top = int(height * CONTENT_Y_RATIO)
+    content_width = int(width * CONTENT_W_RATIO)
+    content_height = int(height * CONTENT_H_RATIO)
+    return left, top, content_width, content_height
+
+
+def _fit_font_size(base: int, minimum: int, text: str, width: int, height: int) -> int:
+    text_len = len((text or "").strip())
+    if text_len > 140:
+        return max(minimum, base - 4)
+    if text_len > 95:
+        return max(minimum, base - 2)
+    if width < 560 or height < 440:
+        return max(minimum, base - 1)
+    return base
+
+
+def _serif_font(preferred_size: int, weight: str = "normal", slant: str = "roman") -> tuple[str, int, str]:
+    family = "Georgia"
+    style = weight if slant == "roman" else f"{weight} {slant}"
+    return (family, preferred_size, style)
+
+
+def _split_message_lines(message: str) -> list[str]:
+    raw_lines = [line.strip() for line in str(message or "").splitlines() if line.strip()]
+    if raw_lines:
+        return raw_lines[:2]
+    return ["Reminder"]
 
 
 @dataclass
@@ -108,6 +163,46 @@ def _collect_details(details: Optional[Sequence[str]]) -> str:
     return "\n".join(cleaned)
 
 
+def _display_scale(master: tk.Misc | None = None) -> float:
+    if master is None:
+        return 1.0
+    try:
+        pixels_per_inch = float(master.winfo_fpixels("1i"))
+        if pixels_per_inch > 0:
+            return max(1.0, min(1.75, pixels_per_inch / 96.0))
+    except Exception:
+        pass
+    return 1.0
+
+
+def _smart_popup_target_size(
+    monitor: dict[str, int],
+    requested_width: int,
+    requested_height: int,
+    display_scale: float = 1.0,
+) -> tuple[int, int]:
+    monitor_width = max(1280, int(monitor.get("width", 1280)))
+    monitor_height = max(720, int(monitor.get("height", 720)))
+    aspect_ratio = monitor_width / max(1, monitor_height)
+    dpi_boost = max(1.0, min(1.20, float(display_scale)))
+
+    height_ratio = 0.56
+    if aspect_ratio >= 2.3:
+        height_ratio = 0.60
+    elif aspect_ratio >= 2.0:
+        height_ratio = 0.58
+    elif aspect_ratio <= 1.65:
+        height_ratio = 0.54
+
+    smart_height = round(monitor_height * height_ratio * dpi_boost)
+    smart_height = _clamp(smart_height, ART_MIN_POPUP_SIZE[1], int(monitor_height * 0.72))
+    smart_width = round(smart_height * ART_ASPECT_RATIO)
+
+    final_height = max(requested_height, smart_height)
+    final_width = max(requested_width, smart_width)
+    return final_width, final_height
+
+
 class CustomPopupController:
     def __init__(self, master: tk.Misc | None) -> None:
         self.master = master
@@ -163,8 +258,16 @@ class CustomPopupController:
         top_margin = max(0, _to_int(settings, "popup_top_margin", DEFAULT_TOP_MARGIN))
         requested_width = max(320, _to_int(settings, "popup_width", DEFAULT_POPUP_SIZE[0]))
         requested_height = max(240, _to_int(settings, "popup_height", DEFAULT_POPUP_SIZE[1]))
-        width = min(requested_width, max(320, monitor["width"] - left_margin * 2))
-        height = min(requested_height, max(240, monitor["height"] - top_margin * 2))
+        requested_width = max(ART_MIN_POPUP_SIZE[0], requested_width)
+        requested_height = max(ART_MIN_POPUP_SIZE[1], requested_height)
+        smart_width, smart_height = _smart_popup_target_size(
+            monitor,
+            requested_width,
+            requested_height,
+            _display_scale(self.master),
+        )
+        width = min(smart_width, max(ART_MIN_POPUP_SIZE[0], monitor["width"] - left_margin * 2))
+        height = min(smart_height, max(ART_MIN_POPUP_SIZE[1], monitor["height"] - top_margin * 2))
         popup_position = _to_str(settings, "popup_position", "left").lower()
         target_x = monitor["left"] + left_margin
         if popup_position not in {"left", "left-side"}:
@@ -278,31 +381,7 @@ class CustomPopupController:
 
         image = Image.open(asset_path).convert("RGBA")
         fitted = ImageOps.fit(image, (width, height), method=Image.LANCZOS)
-        overlay = Image.new("RGBA", (width, height), (0, 0, 0, 0))
-        from PIL import ImageDraw  # local import to keep fallback path small
-
-        overlay_draw = ImageDraw.Draw(overlay)
-        box_left = int(width * 0.14)
-        box_top = int(height * 0.18)
-        box_right = int(width * 0.86)
-        box_bottom = int(height * 0.82)
-        box = (box_left, box_top, box_right, box_bottom)
-        try:
-            overlay_draw.rounded_rectangle(
-                box,
-                radius=max(12, min(width, height) // 18),
-                fill=(255, 246, 223, 210),
-                outline=(85, 64, 34, 200),
-                width=2,
-            )
-        except Exception:
-            overlay_draw.rectangle(
-                box,
-                fill=(255, 246, 223, 210),
-                outline=(85, 64, 34, 200),
-                width=2,
-            )
-        composed = Image.alpha_composite(fitted, overlay)
+        composed = fitted
         self._photo = ImageTk.PhotoImage(composed, master=self._window)
 
         canvas = tk.Canvas(
@@ -316,47 +395,121 @@ class CustomPopupController:
         canvas.pack(fill="both", expand=True)
         canvas.create_image(0, 0, image=self._photo, anchor="nw")
 
-        title_size = max(20, height // 14)
-        body_size = max(13, height // 22)
-        detail_size = max(11, height // 26)
-        text_color = "#3a2714"
-        wrap_width = int(width * 0.62)
-        text_center_x = width // 2
-        title_y = int(height * 0.27) + 12
-        body_y = int(height * 0.48) + 12
-        detail_y = int(height * 0.69) + 12
+        content_left, content_top, content_width, content_height = _content_box(width, height)
+        content_center_x = width // 2
+        wrap_width = max(340, content_width - CONTENT_INSET_X * 2)
+        title_size = min(22, max(18, round(height * 0.038)))
+        body_size = min(16, max(14, round(height * 0.028)))
         detail_text = _collect_details(details)
+        detail_size = min(12, max(10, round(height * 0.019)))
+        title_y = round(height * TITLE_GLOBAL_Y_RATIO)
+        upper_divider_y = round(height * UPPER_DIVIDER_GLOBAL_Y_RATIO)
+        body_line_1_y = round(height * BODY_LINE_1_GLOBAL_Y_RATIO)
+        body_line_2_y = round(height * BODY_LINE_2_GLOBAL_Y_RATIO)
+        lower_divider_y = round(height * LOWER_DIVIDER_GLOBAL_Y_RATIO)
+        detail_y = round(height * DETAIL_GLOBAL_Y_RATIO)
+        detail_text = _collect_details(details)
+        body_lines = _split_message_lines(message)
+
+        self._draw_divider(canvas, content_center_x, upper_divider_y, wrap_width, max(12, title_size // 2))
+        self._draw_divider(canvas, content_center_x, lower_divider_y, wrap_width, max(8, detail_size))
 
         canvas.create_text(
-            text_center_x,
-            title_y,
+            content_center_x,
+            title_y + TITLE_SHADOW_OFFSET,
             text=title.strip() or "Reminder",
-            fill=text_color,
-            font=("Georgia", title_size, "bold"),
-            width=wrap_width,
+            fill=TITLE_SHADOW,
+            font=_serif_font(title_size, "bold"),
             justify="center",
+            anchor="n",
         )
         canvas.create_text(
-            text_center_x,
-            body_y,
-            text=message.strip() or "Reminder",
-            fill=text_color,
-            font=("Georgia", body_size, "normal"),
+            content_center_x,
+            title_y,
+            text=title.strip() or "Reminder",
+            fill=TITLE_FILL,
+            font=_serif_font(title_size, "bold"),
+            justify="center",
+            anchor="n",
+        )
+        canvas.create_text(
+            content_center_x,
+            body_line_1_y + BODY_SHADOW_OFFSET,
+            text=body_lines[0],
+            fill=BODY_SHADOW,
+            font=_serif_font(body_size),
             width=wrap_width,
             justify="center",
+            anchor="center",
         )
-        if detail_text:
+        canvas.create_text(
+            content_center_x,
+            body_line_1_y,
+            text=body_lines[0],
+            fill=BODY_FILL,
+            font=_serif_font(body_size),
+            width=wrap_width,
+            justify="center",
+            anchor="center",
+        )
+        if len(body_lines) > 1:
             canvas.create_text(
-                text_center_x,
-                detail_y,
-                text=detail_text,
-                fill=text_color,
-                font=("Georgia", detail_size, "normal"),
+                content_center_x,
+                body_line_2_y + BODY_SHADOW_OFFSET,
+                text=body_lines[1],
+                fill=BODY_SHADOW,
+                font=_serif_font(body_size),
                 width=wrap_width,
                 justify="center",
+                anchor="center",
+            )
+            canvas.create_text(
+                content_center_x,
+                body_line_2_y,
+                text=body_lines[1],
+                fill=BODY_FILL,
+                font=_serif_font(body_size),
+                width=wrap_width,
+                justify="center",
+                anchor="center",
+            )
+        if detail_text:
+            canvas.create_text(
+                content_center_x,
+                detail_y,
+                text=detail_text,
+                fill=DETAIL_FILL,
+                font=_serif_font(detail_size, "normal", "italic"),
+                width=wrap_width,
+                justify="center",
+                anchor="s",
             )
 
         self._canvas = canvas
+
+    def _draw_divider(self, canvas: tk.Canvas, center_x: int, y: int, width: int, ornament_size: int) -> None:
+        half_gap = max(16, ornament_size)
+        line_half = max(80, (width // 2) - half_gap - 14)
+        left_start = center_x - half_gap - line_half
+        left_end = center_x - half_gap
+        right_start = center_x + half_gap
+        right_end = center_x + half_gap + line_half
+        canvas.create_line(left_start, y, left_end, y, fill=DIVIDER_FILL, width=2)
+        canvas.create_line(right_start, y, right_end, y, fill=DIVIDER_FILL, width=2)
+        canvas.create_line(left_start, y + 2, left_end, y + 2, fill=DIVIDER_FADE, width=1)
+        canvas.create_line(right_start, y + 2, right_end, y + 2, fill=DIVIDER_FADE, width=1)
+        diamond = max(8, ornament_size // 2)
+        points = [
+            center_x,
+            y - diamond,
+            center_x + diamond,
+            y,
+            center_x,
+            y + diamond,
+            center_x - diamond,
+            y,
+        ]
+        canvas.create_polygon(points, outline=DIVIDER_FILL, fill="", width=2)
 
     def _render_fallback_popup(
         self,

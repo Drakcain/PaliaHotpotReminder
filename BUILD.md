@@ -1,5 +1,7 @@
 # Building PaliaHotpotReminder
 
+Current release: v3.1.2
+
 ## Requirements
 
 - Windows 10/11

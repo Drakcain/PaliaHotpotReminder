@@ -248,6 +248,7 @@ class PaliaHotpotReminderUI:
         self.reminders_enabled_state_var = tk.StringVar(value="On")
         self.debug_log_state_var = tk.StringVar(value="Ready" if self.log_path else "Unavailable")
         self.reminder_status_var = tk.StringVar(value="Ready")
+        self.reminder_chip_flow_state = "not_ready"
         self.reminder_text_var = tk.StringVar(value="-")
         self.reminder_diagnostic_var = tk.StringVar(value="-")
         self.last_reminder_fired_var = tk.StringVar(value="-")
@@ -555,8 +556,7 @@ class PaliaHotpotReminderUI:
             palia_state = "good" if "Game detected" in palia_text else ("info" if "Launcher" in palia_text else "warning")
             self.palia_chip.set_state(self._compact_palia_chip_text(palia_text), palia_state)
         if self.reminder_chip is not None:
-            lower = reminder_text.lower()
-            reminder_state = "good" if "running" in lower or "active" in lower else ("error" if "failed" in lower or "stopped" in lower else "warning")
+            reminder_state = "good" if self.reminder_chip_flow_state == "started" else ("error" if self.reminder_chip_flow_state == "stopped" else "warning")
             self.reminder_chip.set_state(self._compact_reminder_chip_text(reminder_text), reminder_state)
         if self.clock_chip is not None:
             clock_state = "good" if "Ready" in clock_text else "warning"
@@ -571,14 +571,20 @@ class PaliaHotpotReminderUI:
         return "Palia: Offline"
 
     def _compact_reminder_chip_text(self, value: str) -> str:
-        lower = str(value).strip().lower()
-        if "running" in lower or "active" in lower:
-            return "Reminder: Running"
-        if "failed" in lower:
-            return "Reminder: Failed"
-        if "stopped" in lower:
+        if self.reminder_chip_flow_state == "started":
+            return "Reminder: Started"
+        if self.reminder_chip_flow_state == "stopped":
             return "Reminder: Stopped"
-        return "Reminder: Activated"
+        return "Reminder: Not Ready"
+
+    def _set_reminder_chip_flow_state(self, state: str) -> None:
+        normalized = str(state).strip().lower()
+        if normalized not in {"not_ready", "started", "stopped"}:
+            normalized = "not_ready"
+        if self.reminder_chip_flow_state == normalized:
+            return
+        self.reminder_chip_flow_state = normalized
+        self._refresh_status_chips()
 
     def _compact_clock_chip_text(self, value: str) -> str:
         return "Clock: Ready" if "ready" in str(value).strip().lower() else "Clock: Needed"
@@ -1159,6 +1165,7 @@ class PaliaHotpotReminderUI:
             self.watching = True
             self.logger.info("Watcher started")
         self._begin_new_palia_session("manual_start")
+        self._set_reminder_chip_flow_state("started")
         self.readiness_var.set("Running")
         self.status_var.set("Running - reminders are active.")
         self.logger.info("Watcher waiting for manual start resolved by Start Reminder")
@@ -1178,6 +1185,7 @@ class PaliaHotpotReminderUI:
         )
         if self.palia_process_result.game_detected and readiness.can_start_reminder:
             self._begin_new_palia_session("auto_arm_initial_detect")
+            self._set_reminder_chip_flow_state("started")
             self.readiness_var.set("Running")
             self.status_var.set("Running - reminders are active.")
         else:
@@ -1197,6 +1205,7 @@ class PaliaHotpotReminderUI:
             self.watch_job = None
         self.status_var.set("Watching stopped")
         self.readiness_var.set("Paused")
+        self._set_reminder_chip_flow_state("stopped")
         self.diagnostic_var.set("")
         self.logger.info("Watcher stopped")
         self._schedule_detection_tick(int(max(0.1, self._get_process_poll_seconds()) * 1000))

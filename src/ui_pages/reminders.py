@@ -92,7 +92,7 @@ def build_reminders_page(parent, app, colors: dict[str, str]) -> None:
     button(popup, "Reload Popup Settings", app._reload_popup_settings, colors=colors).grid(row=8, column=1, sticky="ew", padx=(8, 16), pady=(10, 14))
     _note(
         popup,
-        "Custom popup mode uses the local scroll asset path. Keep asset changes paired with Test Popup so position and margins stay visually correct.",
+        "Custom popup mode uses the local scroll asset path. Width and height act as minimum size only; HPR scales larger automatically for monitor resolution and display scaling. Keep asset changes paired with Test Popup so position and margins stay visually correct.",
         9,
         colors,
     )

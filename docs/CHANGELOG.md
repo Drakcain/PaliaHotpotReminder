@@ -1,5 +1,23 @@
 # Changelog
 
+## v3.1.2
+
+### Changed
+
+- Updated the reminder status chip wording to follow the app flow: `Reminder: Not Ready`,
+  `Reminder: Started`, and `Reminder: Stopped`.
+- Refined the popup board layout so the reminder body sits lower and feels centered
+  in the parchment area while footer/detail text stays in its own lower lane.
+
+### Preserved
+
+- No reminder timing, OCR, tray, startup, or installer behavior changes.
+
+### Distribution
+
+- Primary release artifact is `PaliaHotpotReminder-Setup-v3.1.2.exe`.
+- Checksum artifact is `PaliaHotpotReminder-Setup-v3.1.2.exe.sha256`.
+
 ## v3.1.1
 
 ### Fixed-Window UI Polish
