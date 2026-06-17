@@ -1,5 +1,34 @@
 # Changelog
 
+## v3.1.4
+
+### Changed
+
+- Hardened clock OCR confidence for small in-game time reads.
+- Added multi-pass Tesseract preprocessing for the Palia clock crop.
+- Added a clock-character constrained OCR mode.
+- Added left-digit crop protection to reduce `11:MM` being read as `1:MM`.
+- Added continuity protection against suspicious time jumps.
+- Added missing-leading-digit correction when recent clock continuity strongly
+  supports `11:MM` instead of `1:MM`.
+- Added repeated-confirmation handling before accepting suspicious OCR candidates.
+- Added rejected OCR debug sample capture when debug logging is enabled.
+- Polished popup footer/status display into clearer two-line output.
+
+### Preserved
+
+- No OCR engine replacement.
+- No BetterOCR, RapidOCR, PaddleOCR, cloud OCR, or LLM OCR.
+- No Palia memory reading, packet inspection, injection, hooks, or gameplay
+  automation.
+- No reminder timing, tray/startup behavior, or installer close-running-HPR
+  behavior rewrite.
+
+### Distribution
+
+- Primary release artifact is `PaliaHotpotReminder-Setup-v3.1.4.exe`.
+- Checksum artifact is `PaliaHotpotReminder-Setup-v3.1.4.exe.sha256`.
+
 ## v3.1.3
 
 ### Changed

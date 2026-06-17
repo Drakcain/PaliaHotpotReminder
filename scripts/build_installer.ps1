@@ -7,7 +7,7 @@ Set-StrictMode -Version Latest
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 Set-Location $repoRoot
 
-$version = '3.1.3'
+$version = '3.1.4'
 $buildRoot = Join-Path $repoRoot 'build'
 $payloadRoot = Join-Path $buildRoot 'installer-payload'
 $pyiDist = Join-Path $buildRoot 'pyinstaller-dist'

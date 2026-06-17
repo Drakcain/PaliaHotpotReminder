@@ -1,6 +1,6 @@
 # Installer Signing
 
-Current release: v3.1.3
+Current release: v3.1.4
 
 PaliaHotpotReminder release installers are unsigned unless a release explicitly
 states otherwise.
