@@ -2,7 +2,7 @@
 
 ## Canonical Path
 
-`C:\GITHUB BUILDS\PaliaHotpotReminder`
+`C:\GITHUB BUILDS\WINDOWS\PaliaHotpotReminder`
 
 ## Identity
 
