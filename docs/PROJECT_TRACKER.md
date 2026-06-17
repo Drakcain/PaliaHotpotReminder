@@ -1,5 +1,22 @@
 # Project Tracker
 
+## v3.1.3 Popup Solidification + Clock Hardening
+
+- Finalized popup scaling rules:
+  - `3440x1440 -> 800x600`
+  - `2560x1440 -> 800x600`
+  - `1920x1080 -> 640x480`
+  - `3840x2160 -> 1200x900`
+- Preserved popup clamp bounds at `640x480` minimum and `1200x900` maximum.
+- Finalized popup title/body placement and kept divider lanes stable.
+- Split the longer reminder message into two display lines.
+- Reworked the footer detail lane into a compact two-line current-time/status readout.
+- Hardened top-right monitor-relative Setup Clock region search and acceptance.
+- Removed stale screen-diagnostic UI entry points.
+- Preserved reminder timing, OCR parser behavior, process watching, tray behavior,
+  startup behavior, and installer close-running-HPR logic.
+- Target artifact is `PaliaHotpotReminder-Setup-v3.1.3.exe`.
+
 ## v3.1.2 Popup Alignment + Reminder Chip Flow
 
 - Moved popup text lower so the reminder body sits in the parchment center.
@@ -90,7 +107,11 @@
 - Did not add a root `LICENSE`; project license choice remains a required owner decision.
 
 ## Current Task
-The active pass is `v3.1.2`: popup alignment and reminder chip flow polish on top of the released v3.1 modular CustomTkinter architecture. Smart Resume, safe local Smart Recall, tray/refocus recovery, Start Reminder/Test Clock preflight, Debug / Support finalization, and asynchronous cancellable Setup Clock remain protected.
+The active pass is `v3.1.3`: popup solidification and clock-detection hardening on
+top of the released v3.1 modular CustomTkinter architecture. Smart Resume, safe
+local Smart Recall, tray/refocus recovery, Start Reminder/Test Clock preflight,
+Debug / Support finalization, and asynchronous cancellable Setup Clock remain
+protected.
 
 ## v2.9 Installer Behavior
 - Added an Inno Setup installer wizard targeting `C:\Tools\PaliaHotpotReminder`.

@@ -83,7 +83,6 @@ def build_clock_setup_page(parent, app, colors: dict[str, str]) -> None:
     tools.grid(row=2, column=0, columnspan=2, sticky="nsew", pady=8)
     for index, (text, command) in enumerate((
         ("Open Preview Image", app._open_preview_image),
-        ("Open Screen Diagnostic", app._open_screen_diagnostic),
         ("Copy Clock OCR Debug", app._copy_clock_ocr_debug),
         ("Screen Diagnostics", lambda: app._focus_section("Diagnostics")),
     )):

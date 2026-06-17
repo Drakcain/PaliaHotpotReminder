@@ -81,7 +81,6 @@ def build_diagnostics_page(parent, app, colors: dict[str, str]) -> None:
         ("Copy Smart Resume Debug", app._copy_smart_resume_debug),
         ("Test System Popup", app._test_system_popup),
         ("Test Custom Popup", app._test_custom_popup),
-        ("Open Screen Diagnostic", app._open_screen_diagnostic),
     )):
         button(details, text, command, colors=colors).grid(row=1 + index // 2, column=index % 2, sticky="ew", padx=16, pady=4)
     _note(

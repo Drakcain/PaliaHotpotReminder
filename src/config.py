@@ -89,8 +89,8 @@ DEFAULT_SETTINGS: Dict[str, Any] = {
     "popup_duration_seconds": 15,
     "popup_position": "left",
     "popup_asset_path": r"assets\Message Board\popup_scroll_clean.png",
-    "popup_width": 560,
-    "popup_height": 420,
+    "popup_width": 640,
+    "popup_height": 480,
     "popup_left_margin": 24,
     "popup_top_margin": 250,
     "notifications": {

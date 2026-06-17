@@ -11,7 +11,14 @@ from config import PROJECT_ROOT
 
 DEBUG_DIR = PROJECT_ROOT / "debug"
 DEBUG_IMAGE_PATH = DEBUG_DIR / "clock_region_latest.png"
-SCREEN_DIAGNOSTIC_PATH = DEBUG_DIR / "screen_diagnostic.png"
+BASELINE_MONITOR_WIDTH = 3440
+BASELINE_MONITOR_HEIGHT = 1440
+BASELINE_CLOCK_WIDTH = 240
+BASELINE_CLOCK_HEIGHT = 84
+BASELINE_TOP_MARGIN = 10
+BASELINE_RIGHT_MARGIN = 256
+BASELINE_RIGHT_MARGIN_CANDIDATES = (224, 240, 256, 272, 287, 304)
+BASELINE_TOP_MARGIN_CANDIDATES = (6, 10, 14, 18)
 
 
 def _get_virtual_bounds() -> Optional[Dict[str, int]]:
@@ -125,52 +132,56 @@ def capture_clock_region(settings: Dict) -> Path:
         image.save(DEBUG_IMAGE_PATH)
     return DEBUG_IMAGE_PATH
 
+def _scaled_clock_regions_for_monitor(monitor: Dict[str, int]) -> List[Dict[str, int]]:
+    left = int(monitor["left"])
+    top = int(monitor["top"])
+    width = int(monitor["width"])
+    height = int(monitor["height"])
+    if width <= 0 or height <= 0:
+        return []
 
-def capture_screen_diagnostic() -> Path:
-    DEBUG_DIR.mkdir(parents=True, exist_ok=True)
-    with mss.mss() as sct:
-        if len(sct.monitors) < 1:
-            raise RuntimeError("No screen monitors detected.")
-        shot = sct.grab(sct.monitors[0])
-        image = Image.frombytes("RGB", shot.size, shot.rgb)
-        image.save(SCREEN_DIAGNOSTIC_PATH)
-    return SCREEN_DIAGNOSTIC_PATH
+    height_scale = height / BASELINE_MONITOR_HEIGHT
+    base_box_height = max(56, round(BASELINE_CLOCK_HEIGHT * height_scale))
+    base_box_width = max(160, round(base_box_height * (BASELINE_CLOCK_WIDTH / BASELINE_CLOCK_HEIGHT)))
+    size_scales = [1.0, 0.96, 1.04, 0.9, 1.1, 1.18]
+    right_margins = [max(24, round(candidate * height_scale)) for candidate in BASELINE_RIGHT_MARGIN_CANDIDATES]
+    top_margins = [max(2, round(candidate * height_scale)) for candidate in BASELINE_TOP_MARGIN_CANDIDATES]
+    x_offsets = [0, -20, 20, -40, 40, -64, 64, -96, 96]
+    y_offsets = [0, 4, 8, 12, 18, 26]
+    regions: List[Dict[str, int]] = []
+    seen: set[tuple[int, int, int, int]] = set()
+    for size_scale in size_scales:
+        box_height = max(56, round(base_box_height * size_scale))
+        box_width = max(160, round(base_box_width * size_scale))
+        max_left = left + max(0, width - box_width)
+        max_top = top + max(0, height - box_height)
+        for right_margin in right_margins:
+            for top_margin in top_margins:
+                base_left = left + width - right_margin - box_width
+                base_top = top + top_margin
+                for offset_x in x_offsets:
+                    region_left = min(max(left, base_left + round(offset_x * height_scale)), max_left)
+                    for offset_y in y_offsets:
+                        region_top = min(max(top, base_top + round(offset_y * height_scale)), max_top)
+                        key = (int(region_left), int(region_top), int(box_width), int(box_height))
+                        if key in seen:
+                            continue
+                        seen.add(key)
+                        regions.append(
+                            {
+                                "left": key[0],
+                                "top": key[1],
+                                "width": key[2],
+                                "height": key[3],
+                            }
+                        )
+    return regions
 
 
 def _candidate_clock_regions(monitors: List[Dict[str, int]]) -> List[Dict[str, int]]:
-    sizes = [
-        (240, 84),
-        (220, 70),
-        (260, 90),
-        (300, 100),
-        (340, 110),
-    ]
-    x_offsets = [0, -80, -160, -240, -320, -420, -540, -700]
-    y_offsets = [0, 10, 20, 40, 60, 80, 100]
-    anchors = [0.98, 0.93, 0.88, 0.83, 0.75, 0.65]
     regions: List[Dict[str, int]] = []
     for monitor in monitors:
-        left = int(monitor["left"])
-        top = int(monitor["top"])
-        width = int(monitor["width"])
-        height = int(monitor["height"])
-        for box_width, box_height in sizes:
-            max_left = left + max(0, width - box_width)
-            max_top = top + max(0, height - box_height)
-            for anchor in anchors:
-                base_left = int(left + max(0, width - box_width) * anchor)
-                for offset_x in x_offsets:
-                    region_left = min(max(left, base_left + offset_x), max_left)
-                    for offset_y in y_offsets:
-                        region_top = min(max(top, top + offset_y), max_top)
-                        regions.append(
-                            {
-                                "left": int(region_left),
-                                "top": int(region_top),
-                                "width": int(box_width),
-                                "height": int(box_height),
-                            }
-                        )
+        regions.extend(_scaled_clock_regions_for_monitor(monitor))
     return regions
 
 
@@ -201,18 +212,23 @@ def setup_clock_candidate_scan(
                 image = Image.frombytes("RGB", shot.size, shot.rgb)
                 DEBUG_DIR.mkdir(parents=True, exist_ok=True)
                 image.save(DEBUG_IMAGE_PATH)
-                first_result = ocr_and_parse(DEBUG_IMAGE_PATH, source="setup_clock")
-                if not (first_result.accepted and first_result.parsed_display_time):
+                confirmations: list[str] = []
+                for attempt in range(3):
+                    parse_source = "setup_clock" if attempt == 0 else f"setup_clock_confirm_{attempt}"
+                    result = ocr_and_parse(DEBUG_IMAGE_PATH, source=parse_source)
+                    if result.accepted and result.parsed_display_time:
+                        confirmations.append(result.parsed_display_time)
+                    if cancel_event is not None and cancel_event.is_set():
+                        return None, None, "cancelled"
+                    if attempt < 2:
+                        sleep(0.2)
+                        shot = sct.grab(region)
+                        image = Image.frombytes("RGB", shot.size, shot.rgb)
+                        image.save(DEBUG_IMAGE_PATH)
+                if len(confirmations) < 3:
                     continue
-                if cancel_event is not None and cancel_event.is_set():
-                    return None, None, "cancelled"
-                sleep(0.15)
-                shot_confirm = sct.grab(region)
-                image_confirm = Image.frombytes("RGB", shot_confirm.size, shot_confirm.rgb)
-                image_confirm.save(DEBUG_IMAGE_PATH)
-                second_result = ocr_and_parse(DEBUG_IMAGE_PATH, source="setup_clock_confirm")
-                if second_result.accepted and second_result.parsed_display_time == first_result.parsed_display_time:
-                    return region, DEBUG_IMAGE_PATH, first_result.parsed_display_time
+                if confirmations[0] == confirmations[1] == confirmations[2]:
+                    return region, DEBUG_IMAGE_PATH, confirmations[0]
             except Exception:
                 continue
     return None, None, "No readable clock found."

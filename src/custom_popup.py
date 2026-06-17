@@ -22,21 +22,21 @@ except Exception:  # pragma: no cover - optional dependency fallback
     mss = None
 
 
-DEFAULT_POPUP_SIZE = (760, 580)
+DEFAULT_POPUP_SIZE = (640, 480)
 DEFAULT_LEFT_MARGIN = 24
 DEFAULT_TOP_MARGIN = 250
 DEFAULT_DURATION_SECONDS = 8
 DEFAULT_ASSET_PATH = PROJECT_ROOT / "assets" / "Message Board" / "popup_scroll_clean.png"
 TRANSPARENT_COLOR = "#010203"
-ART_MIN_POPUP_SIZE = (760, 580)
+ART_MIN_POPUP_SIZE = (640, 480)
 CONTENT_X_RATIO = 0.15
 CONTENT_Y_RATIO = 0.295
 CONTENT_W_RATIO = 0.70
 CONTENT_H_RATIO = 0.53
-TITLE_GLOBAL_Y_RATIO = 0.455
+TITLE_GLOBAL_Y_RATIO = 0.435
 UPPER_DIVIDER_GLOBAL_Y_RATIO = 0.530
-BODY_LINE_1_GLOBAL_Y_RATIO = 0.595
-BODY_LINE_2_GLOBAL_Y_RATIO = 0.655
+BODY_LINE_1_GLOBAL_Y_RATIO = 0.615
+BODY_LINE_2_GLOBAL_Y_RATIO = 0.675
 LOWER_DIVIDER_GLOBAL_Y_RATIO = 0.735
 DETAIL_GLOBAL_Y_RATIO = 0.775
 CONTENT_INSET_X = 20
@@ -51,6 +51,10 @@ DETAIL_FILL = "#4A2E18"
 DIVIDER_FILL = "#9A7648"
 DIVIDER_FADE = "#E7D3AA"
 ART_ASPECT_RATIO = 1448 / 1086
+SMART_POPUP_HEIGHT_RATIO = 0.4167
+SMART_POPUP_MAX_SIZE = (1200, 900)
+TITLE_Y_OFFSET_PX = -50
+BODY_Y_OFFSET_PX = -16
 
 
 def _content_box(width: int, height: int) -> tuple[int, int, int, int]:
@@ -80,8 +84,18 @@ def _serif_font(preferred_size: int, weight: str = "normal", slant: str = "roman
 
 def _split_message_lines(message: str) -> list[str]:
     raw_lines = [line.strip() for line in str(message or "").splitlines() if line.strip()]
-    if raw_lines:
+    if len(raw_lines) >= 2:
         return raw_lines[:2]
+    source_text = raw_lines[0] if raw_lines else str(message or "").strip()
+    words = source_text.split()
+    if len(words) >= 6:
+        midpoint = len(words) // 2
+        return [
+            " ".join(words[:midpoint]).strip(),
+            " ".join(words[midpoint:]).strip(),
+        ]
+    if source_text:
+        return [source_text]
     return ["Reminder"]
 
 
@@ -163,6 +177,12 @@ def _collect_details(details: Optional[Sequence[str]]) -> str:
     return "\n".join(cleaned)
 
 
+def _detail_lines(details: Optional[Sequence[str]]) -> list[str]:
+    if not details:
+        return []
+    return [str(item).strip() for item in details if str(item).strip()]
+
+
 def _display_scale(master: tk.Misc | None = None) -> float:
     if master is None:
         return 1.0
@@ -181,25 +201,19 @@ def _smart_popup_target_size(
     requested_height: int,
     display_scale: float = 1.0,
 ) -> tuple[int, int]:
-    monitor_width = max(1280, int(monitor.get("width", 1280)))
     monitor_height = max(720, int(monitor.get("height", 720)))
-    aspect_ratio = monitor_width / max(1, monitor_height)
-    dpi_boost = max(1.0, min(1.20, float(display_scale)))
+    max_width, max_height = SMART_POPUP_MAX_SIZE
 
-    height_ratio = 0.56
-    if aspect_ratio >= 2.3:
-        height_ratio = 0.60
-    elif aspect_ratio >= 2.0:
-        height_ratio = 0.58
-    elif aspect_ratio <= 1.65:
-        height_ratio = 0.54
+    smart_height = round(monitor_height * SMART_POPUP_HEIGHT_RATIO)
+    smart_height = _clamp(smart_height, ART_MIN_POPUP_SIZE[1], max_height)
+    smart_width = _clamp(round(smart_height * (4 / 3)), ART_MIN_POPUP_SIZE[0], max_width)
 
-    smart_height = round(monitor_height * height_ratio * dpi_boost)
-    smart_height = _clamp(smart_height, ART_MIN_POPUP_SIZE[1], int(monitor_height * 0.72))
-    smart_width = round(smart_height * ART_ASPECT_RATIO)
+    final_width = smart_width
+    final_height = smart_height
+    if requested_width > smart_width or requested_height > smart_height:
+        final_width = max(requested_width, smart_width)
+        final_height = max(requested_height, smart_height)
 
-    final_height = max(requested_height, smart_height)
-    final_width = max(requested_width, smart_width)
     return final_width, final_height
 
 
@@ -400,15 +414,15 @@ class CustomPopupController:
         wrap_width = max(340, content_width - CONTENT_INSET_X * 2)
         title_size = min(22, max(18, round(height * 0.038)))
         body_size = min(16, max(14, round(height * 0.028)))
-        detail_text = _collect_details(details)
         detail_size = min(12, max(10, round(height * 0.019)))
-        title_y = round(height * TITLE_GLOBAL_Y_RATIO)
+        detail_gap = 10
+        title_y = round(height * TITLE_GLOBAL_Y_RATIO) + TITLE_Y_OFFSET_PX
         upper_divider_y = round(height * UPPER_DIVIDER_GLOBAL_Y_RATIO)
-        body_line_1_y = round(height * BODY_LINE_1_GLOBAL_Y_RATIO)
-        body_line_2_y = round(height * BODY_LINE_2_GLOBAL_Y_RATIO)
+        body_line_1_y = round(height * BODY_LINE_1_GLOBAL_Y_RATIO) + BODY_Y_OFFSET_PX
+        body_line_2_y = round(height * BODY_LINE_2_GLOBAL_Y_RATIO) + BODY_Y_OFFSET_PX
         lower_divider_y = round(height * LOWER_DIVIDER_GLOBAL_Y_RATIO)
         detail_y = round(height * DETAIL_GLOBAL_Y_RATIO)
-        detail_text = _collect_details(details)
+        detail_lines = _detail_lines(details)
         body_lines = _split_message_lines(message)
 
         self._draw_divider(canvas, content_center_x, upper_divider_y, wrap_width, max(12, title_size // 2))
@@ -473,17 +487,20 @@ class CustomPopupController:
                 justify="center",
                 anchor="center",
             )
-        if detail_text:
-            canvas.create_text(
-                content_center_x,
-                detail_y,
-                text=detail_text,
-                fill=DETAIL_FILL,
-                font=_serif_font(detail_size, "normal", "italic"),
-                width=wrap_width,
-                justify="center",
-                anchor="s",
-            )
+        if detail_lines:
+            total_height = (len(detail_lines) - 1) * detail_gap
+            start_y = detail_y - total_height
+            for index, line in enumerate(detail_lines):
+                canvas.create_text(
+                    content_center_x,
+                    start_y + (index * detail_gap),
+                    text=line,
+                    fill=DETAIL_FILL,
+                    font=_serif_font(detail_size, "normal", "italic"),
+                    width=wrap_width,
+                    justify="center",
+                    anchor="s",
+                )
 
         self._canvas = canvas
 

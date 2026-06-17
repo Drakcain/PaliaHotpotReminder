@@ -1,5 +1,30 @@
 # Changelog
 
+## v3.1.3
+
+### Changed
+
+- Tuned custom popup scaling so 1440p-height displays target `800x600` instead of
+  the oversized `1152x864` layout.
+- Preserved `640x480` as the minimum popup bound and `1200x900` as the maximum.
+- Refined popup title/body placement while keeping the divider lanes stable.
+- Split longer reminder body text into two readable display lines.
+- Reworked popup footer details into a compact two-line `Current Time` plus
+  `Confirmed` or `Estimated` lane.
+- Hardened Setup Clock around monitor-relative top-right scanning, faster retry
+  cadence, and repeated OCR confirmation before accepting a region.
+- Removed the stale screen-diagnostic button path that no longer had live support.
+
+### Preserved
+
+- No OCR parser, reminder timing, process detection, tray behavior, startup
+  behavior, or installer close-running-HPR behavior changes.
+
+### Distribution
+
+- Primary release artifact is `PaliaHotpotReminder-Setup-v3.1.3.exe`.
+- Checksum artifact is `PaliaHotpotReminder-Setup-v3.1.3.exe.sha256`.
+
 ## v3.1.2
 
 ### Changed

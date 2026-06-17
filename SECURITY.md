@@ -1,6 +1,6 @@
 # Security
 
-Current release: v3.1.2
+Current release: v3.1.3
 
 ## Reporting
 

@@ -625,13 +625,19 @@ class ReminderManager:
     ) -> List[str]:
         details: List[str] = []
         if current_time_label:
-            details.append(f"Palia time: {current_time_label}")
+            details.append(f"Current Time: {current_time_label}")
         elif getattr(snapshot, "current_palia_time", ""):
-            details.append(f"Palia time: {snapshot.current_palia_time}")
-        if getattr(snapshot, "mode", ""):
-            details.append(f"Mode: {snapshot.mode}")
-        if stale and getattr(snapshot, "last_confirmed_palia_time", ""):
-            details.append(f"Last confirmed: {snapshot.last_confirmed_palia_time}")
+            details.append(f"Current Time: {snapshot.current_palia_time}")
+        mode = str(getattr(snapshot, "mode", "")).strip()
+        if mode:
+            if mode.lower() == "confirmed":
+                details.append("Confirmed")
+            elif mode.lower() == "estimated":
+                details.append("Estimated")
+            else:
+                details.append(mode)
+        elif stale:
+            details.append("Estimated")
         return details
 
     def _log_decision(self, snapshot, outcome: ReminderOutcome, now: datetime) -> None:

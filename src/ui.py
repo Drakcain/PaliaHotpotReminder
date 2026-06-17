@@ -27,9 +27,7 @@ from reminders import (
 )
 from screencap import (
     DEBUG_IMAGE_PATH,
-    SCREEN_DIAGNOSTIC_PATH,
     capture_clock_region,
-    capture_screen_diagnostic,
     get_screen_diagnostics,
     probe_clock_region,
     setup_clock_candidate_scan,
@@ -72,7 +70,26 @@ def _format_region(settings: Dict) -> str:
 
 
 def _default_region() -> Dict[str, int]:
-    return {"left": 0, "top": 0, "width": 220, "height": 70}
+    try:
+        with mss.mss() as sct:
+            primary = sct.monitors[1] if len(sct.monitors) > 1 else sct.monitors[0]
+            monitor_left = int(primary["left"])
+            monitor_top = int(primary["top"])
+            monitor_width = int(primary["width"])
+            monitor_height = int(primary["height"])
+        height_scale = monitor_height / 1440
+        box_height = max(56, round(84 * height_scale))
+        box_width = max(160, round(box_height * (240 / 84)))
+        top_margin = max(2, round(10 * height_scale))
+        right_margin = max(24, round(256 * height_scale))
+        return {
+            "left": monitor_left + max(0, monitor_width - right_margin - box_width),
+            "top": monitor_top + top_margin,
+            "width": box_width,
+            "height": box_height,
+        }
+    except Exception:
+        return {"left": 0, "top": 0, "width": 220, "height": 70}
 
 
 def _current_virtual_bounds() -> Dict[str, int]:
@@ -1208,7 +1225,7 @@ class PaliaHotpotReminderUI:
         self._set_reminder_chip_flow_state("stopped")
         self.diagnostic_var.set("")
         self.logger.info("Watcher stopped")
-        self._schedule_detection_tick(int(max(0.1, self._get_process_poll_seconds()) * 1000))
+        self._schedule_detection_tick(int(max(0.1, self._get_presence_poll_seconds()) * 1000))
 
     def _reset_volatile_watch_state(self, reason: str) -> None:
         self.tracker.reset()
@@ -1475,7 +1492,7 @@ class PaliaHotpotReminderUI:
                 allow_session_transitions=False,
                 force_log=bool(self.settings.get("debug_verbose", False)),
             )
-        self._schedule_detection_tick(int(max(0.1, self._get_process_poll_seconds()) * 1000))
+        self._schedule_detection_tick(int(max(0.1, self._get_presence_poll_seconds()) * 1000))
 
     def _clock_region_string(self, settings: Dict) -> str:
         region = settings.get("clock_region") or {}
@@ -1626,21 +1643,21 @@ class PaliaHotpotReminderUI:
             if auto_arm:
                 self.status_var.set("Watcher paused until Palia opens")
                 self.diagnostic_var.set("Auto-arm is waiting for a running Palia process.")
-            self._schedule_watch_tick(int(max(0.1, self._get_process_poll_seconds()) * 1000))
+            self._schedule_watch_tick(int(max(0.1, self._get_presence_poll_seconds()) * 1000))
             return
         if not self._is_clock_setup_ready():
             self._sync_reminder_state(ReminderOutcome(status_message="Clock setup needed - click Setup Clock.", reminders_enabled=False))
             self.readiness_var.set("Needs Setup Clock")
             self.status_var.set("Clock setup needed - click Setup Clock once.")
             self.diagnostic_var.set("Clock setup is required before reminders can start.")
-            self._schedule_watch_tick(int(max(0.1, self._get_process_poll_seconds()) * 1000))
+            self._schedule_watch_tick(int(max(0.1, self._get_presence_poll_seconds()) * 1000))
             return
         if not self.session_watch_active:
             self._sync_reminder_state(ReminderOutcome(status_message="Watcher waiting for manual Start Watch", reminders_enabled=False))
             if not auto_arm:
                 self.status_var.set("Watcher waiting for manual Start Watch")
                 self.diagnostic_var.set("Palia is detected. Click Start Reminder to begin a fresh session.")
-            self._schedule_watch_tick(int(max(0.1, self._get_process_poll_seconds()) * 1000))
+            self._schedule_watch_tick(int(max(0.1, self._get_presence_poll_seconds()) * 1000))
             return
 
         snapshot, diagnostic, parse_result = self._run_clock_read(source="watcher")
@@ -1651,8 +1668,7 @@ class PaliaHotpotReminderUI:
         self.last_reminder_snapshot = snapshot
         self.status_var.set(reminder_outcome.status_message or snapshot.status_message)
 
-        poll_seconds = self._get_process_poll_seconds() if auto_arm else self._get_poll_seconds()
-        self._schedule_watch_tick(int(max(0.1, poll_seconds) * 1000))
+        self._schedule_watch_tick(int(max(0.1, self._get_poll_seconds()) * 1000))
 
     def _get_poll_seconds(self) -> float:
         try:
@@ -1665,6 +1681,9 @@ class PaliaHotpotReminderUI:
             return float(self.settings.get("palia_process_poll_seconds", 5))
         except (TypeError, ValueError):
             return 5.0
+
+    def _get_presence_poll_seconds(self) -> float:
+        return min(self._get_process_poll_seconds(), self._get_poll_seconds())
 
     def _sync_snapshot(self, snapshot: TrackerSnapshot) -> None:
         self.mode_var.set(_format_value(snapshot.mode))
@@ -1735,18 +1754,6 @@ class PaliaHotpotReminderUI:
             self.diagnostic_var.set("")
             messagebox.showerror("Capture Failed", str(exc))
 
-    def _capture_screen_diagnostic(self) -> None:
-        try:
-            out_path = capture_screen_diagnostic()
-            self._refresh_from_settings()
-            self.status_var.set(f"Screen diagnostic captured: {out_path}")
-            self.diagnostic_var.set("Full-screen diagnostic captured for calibration only.")
-            messagebox.showinfo("Screen Diagnostic Captured", f"Saved full-screen diagnostic image:\n{out_path}")
-        except Exception as exc:
-            self.status_var.set(f"Screen diagnostic failed: {exc}")
-            self.diagnostic_var.set("")
-            messagebox.showerror("Screen Diagnostic Failed", str(exc))
-
     def _open_preview_image(self) -> None:
         if not DEBUG_IMAGE_PATH.exists():
             self.status_var.set("Preview image missing. Run Preview Region Capture first.")
@@ -1758,19 +1765,6 @@ class PaliaHotpotReminderUI:
             self.diagnostic_var.set("")
         except Exception as exc:
             self.status_var.set(f"Could not open preview image: {exc}")
-            messagebox.showerror("Open Failed", str(exc))
-
-    def _open_screen_diagnostic(self) -> None:
-        if not SCREEN_DIAGNOSTIC_PATH.exists():
-            self.status_var.set("Screen diagnostic missing. Capture Screen Diagnostic first.")
-            messagebox.showerror("Missing Diagnostic", "Capture Screen Diagnostic first.")
-            return
-        try:
-            open_traced_path(SCREEN_DIAGNOSTIC_PATH, purpose="open screen diagnostic")
-            self.status_var.set(f"Opened screen diagnostic: {SCREEN_DIAGNOSTIC_PATH}")
-            self.diagnostic_var.set("")
-        except Exception as exc:
-            self.status_var.set(f"Could not open screen diagnostic: {exc}")
             messagebox.showerror("Open Failed", str(exc))
 
     def _test_ocr(self) -> None:
