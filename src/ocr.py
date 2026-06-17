@@ -1,6 +1,7 @@
 import os
 import re
 import tempfile
+from collections import Counter
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
@@ -62,6 +63,22 @@ def preprocess_clock_image(image_path: Path) -> Image.Image:
     image = ImageOps.autocontrast(image)
     image = image.point(lambda p: 255 if p > 145 else 0)
     return image
+
+
+def preprocess_clock_variants(image_path: Path) -> list[tuple[str, Image.Image]]:
+    base = Image.open(image_path).convert("L")
+    upscaled = base.resize((base.width * 4, base.height * 4), Image.Resampling.LANCZOS)
+    contrast = ImageEnhance.Contrast(upscaled).enhance(2.4)
+    sharp = ImageEnhance.Sharpness(contrast).enhance(1.8)
+    autocontrast = ImageOps.autocontrast(sharp)
+    threshold = autocontrast.point(lambda p: 255 if p > 145 else 0)
+    soft_threshold = autocontrast.point(lambda p: 255 if p > 120 else 0)
+    return [
+        ("upscaled", autocontrast),
+        ("threshold", threshold),
+        ("soft_threshold", soft_threshold),
+        ("inverted_threshold", ImageOps.invert(threshold)),
+    ]
 
 
 def resolve_tesseract_cmd(settings: Optional[dict] = None) -> str:
@@ -128,37 +145,42 @@ def preflight_tesseract(settings: Optional[dict] = None):
     return True, "ok", output, tessdata_dir
 
 
-def run_ocr(image_path: Path) -> str:
-    tesseract_cmd = resolve_tesseract_cmd()
-    prepared = preprocess_clock_image(image_path)
-    tessdata_dir = resolve_tessdata_dir(tesseract_cmd)
+def _run_tesseract_on_image(
+    image: Image.Image,
+    *,
+    tesseract_cmd: str,
+    tessdata_dir: Path,
+    variant_label: str,
+) -> str:
     previous_prefix = os.environ.get("TESSDATA_PREFIX")
     os.environ["TESSDATA_PREFIX"] = str(tessdata_dir.parent)
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
         temp_image_path = Path(tmp.name)
     try:
-        prepared.save(temp_image_path)
+        image.save(temp_image_path)
         cmd = [
             tesseract_cmd,
             str(temp_image_path),
             "stdout",
             "--psm",
-            "11",
+            "7",
             "--oem",
             "1",
             "--tessdata-dir",
             str(tessdata_dir),
             "-l",
             "eng",
+            "-c",
+            "tessedit_char_whitelist=0123456789:AMPamp ",
         ]
-        completed = run_traced_subprocess(cmd, purpose="tesseract ocr", recurring=False, hidden=True)
+        completed = run_traced_subprocess(cmd, purpose=f"tesseract ocr {variant_label}", recurring=False, hidden=True)
         if completed.returncode != 0:
             raise RuntimeError(
                 completed.stderr.strip()
                 or completed.stdout.strip()
                 or "Clock reader engine could not process the image."
             )
-        text = completed.stdout
+        return " ".join(completed.stdout.split())
     except Exception as exc:
         raise RuntimeError(
             "Clock reader data could not be loaded. Reinstall Palia Hotpot Reminder and keep the tesseract folder beside the EXE."
@@ -173,7 +195,25 @@ def run_ocr(image_path: Path) -> str:
             os.environ.pop("TESSDATA_PREFIX", None)
         else:
             os.environ["TESSDATA_PREFIX"] = previous_prefix
-    return " ".join(text.split())
+
+
+def run_ocr(image_path: Path) -> str:
+    tesseract_cmd = resolve_tesseract_cmd()
+    tessdata_dir = resolve_tessdata_dir(tesseract_cmd)
+    results: list[str] = []
+    for variant_label, image in preprocess_clock_variants(image_path):
+        try:
+            text = _run_tesseract_on_image(
+                image,
+                tesseract_cmd=tesseract_cmd,
+                tessdata_dir=tessdata_dir,
+                variant_label=variant_label,
+            )
+        except RuntimeError:
+            raise
+        if text:
+            results.append(f"{variant_label}: {text}")
+    return " | ".join(results)
 
 
 def normalize_clock_text(raw_text: str) -> str:
@@ -254,34 +294,29 @@ def _candidate_from_match(original_text: str, hour_text: str, minute_text: str, 
 
 def _extract_candidates(normalized_text: str) -> list[ClockParseCandidate]:
     candidates: list[ClockParseCandidate] = []
-    seen: set[tuple[int, int, str]] = set()
 
     for match in INLINE_AMPM_PATTERN.finditer(normalized_text):
         candidate = _candidate_from_match(match.group(0), match.group(1), match.group(2), match.group(3))
         if candidate is None:
             continue
-        key = (candidate.hour, candidate.minute, candidate.meridiem)
-        if key not in seen:
-            seen.add(key)
-            candidates.append(candidate)
+        candidates.append(candidate)
 
     for match in TIME_TOKEN_PATTERN.finditer(normalized_text):
         candidate = _candidate_from_match(match.group(0), match.group(1), match.group(2), match.group(3))
         if candidate is None:
             continue
-        key = (candidate.hour, candidate.minute, candidate.meridiem)
-        if key not in seen:
-            seen.add(key)
-            candidates.append(candidate)
+        candidates.append(candidate)
     return candidates
 
 
 def _select_candidate(candidates: Sequence[ClockParseCandidate]) -> tuple[Optional[ClockParseCandidate], str]:
     if not candidates:
         return None, "no_time_pattern_found"
+    display_counts = Counter(candidate.display_time for candidate in candidates)
     ranked = sorted(
         candidates,
         key=lambda item: (
+            -display_counts[item.display_time],
             0 if item.preserved_leading_digits else 1,
             0 if "digit_loss_suspect" not in item.suspicion_flags else 1,
             -len(item.original_text),

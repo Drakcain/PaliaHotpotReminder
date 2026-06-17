@@ -3,6 +3,7 @@ import sys
 import tempfile
 import tkinter as tk
 from contextlib import redirect_stdout
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import customtkinter as ctk
@@ -14,6 +15,7 @@ from ocr import parse_clock_result, preflight_tesseract
 from paths import get_app_root, get_source_root, resolve_resource_path
 from smart_recall import RECALL_KEYS, default_recall_state, load_recall_state, save_recall_state
 from smart_resume import NEEDS_SETUP, PALIA_NOT_OPEN, READY, evaluate_smart_resume, monitor_fingerprint
+from state import PaliaTimeTracker
 from ui import PaliaHotpotReminderUI
 
 
@@ -89,6 +91,26 @@ def run_self_test() -> int:
         parser_ok = parser_ok and case_ok
         print(f"SELF_TEST: parser_reject raw={raw!r} accepted={result.accepted} reject_reason={result.reject_reason!r}")
     print(f"SELF_TEST: parser_ok={parser_ok}")
+
+    guard_tracker = PaliaTimeTracker()
+    guard_settings = {"palia_minutes_per_real_second": 0.4, "stale_after_seconds": 900, "unreadable_reads_before_hidden": 2}
+    guard_now = datetime(2026, 6, 17, 12, 0, 0)
+    guard_tracker.update(parse_clock_result("11:22 PM", source="self_test_guard"), guard_settings, now=guard_now)
+    corrected = parse_clock_result("1:25 PM", source="self_test_guard")
+    corrected_snapshot = guard_tracker.update(corrected, guard_settings, now=guard_now + timedelta(seconds=10))
+    guard_corrected_ok = (
+        corrected_snapshot.parse_accepted
+        and corrected_snapshot.current_palia_time == "11:25 PM"
+        and "corrected_missing_leading_digit" in corrected_snapshot.parse_candidates
+    )
+    guard_rejected = parse_clock_result("3:25 PM", source="self_test_guard")
+    rejected_snapshot = guard_tracker.update(guard_rejected, guard_settings, now=guard_now + timedelta(seconds=12))
+    guard_rejected_ok = (
+        not rejected_snapshot.parse_accepted
+        and "continuity_suspicious_jump" in rejected_snapshot.parse_reject_reason
+    )
+    print(f"SELF_TEST: continuity_guard_corrected={guard_corrected_ok}")
+    print(f"SELF_TEST: continuity_guard_rejected={guard_rejected_ok}")
 
     diagnostics = {
         "monitors": [
@@ -204,7 +226,7 @@ def run_self_test() -> int:
     )
     print(f"SELF_TEST: debug_report_ok={report_ok}")
 
-    all_ok = ok and parser_ok and smart_resume_ok and fingerprint_ok and recall_ok and report_ok
+    all_ok = ok and parser_ok and guard_corrected_ok and guard_rejected_ok and smart_resume_ok and fingerprint_ok and recall_ok and report_ok
     return 0 if all_ok else 2
 
 

@@ -11,6 +11,9 @@ from config import PROJECT_ROOT
 
 DEBUG_DIR = PROJECT_ROOT / "debug"
 DEBUG_IMAGE_PATH = DEBUG_DIR / "clock_region_latest.png"
+OCR_LEFT_PAD_RATIO = 0.18
+OCR_MAX_LEFT_PAD = 48
+OCR_RIGHT_PAD = 6
 BASELINE_MONITOR_WIDTH = 3440
 BASELINE_MONITOR_HEIGHT = 1440
 BASELINE_CLOCK_WIDTH = 240
@@ -118,12 +121,7 @@ def capture_clock_region(settings: Dict) -> Path:
         raise ValueError(msg)
 
     region = settings["clock_region"]
-    monitor = {
-        "left": region["left"],
-        "top": region["top"],
-        "width": region["width"],
-        "height": region["height"],
-    }
+    monitor = _expanded_clock_region_for_ocr(region)
 
     DEBUG_DIR.mkdir(parents=True, exist_ok=True)
     with mss.mss() as sct:
@@ -131,6 +129,34 @@ def capture_clock_region(settings: Dict) -> Path:
         image = Image.frombytes("RGB", shot.size, shot.rgb)
         image.save(DEBUG_IMAGE_PATH)
     return DEBUG_IMAGE_PATH
+
+
+def _expanded_clock_region_for_ocr(region: Dict[str, int]) -> Dict[str, int]:
+    bounds = _get_virtual_bounds()
+    left = int(region["left"])
+    top = int(region["top"])
+    width = int(region["width"])
+    height = int(region["height"])
+    left_pad = min(OCR_MAX_LEFT_PAD, max(8, round(width * OCR_LEFT_PAD_RATIO)))
+    right_pad = OCR_RIGHT_PAD
+    expanded_left = left - left_pad
+    expanded_width = width + left_pad + right_pad
+
+    if bounds is not None:
+        min_left = int(bounds["left"])
+        max_right = int(bounds["left"] + bounds["width"])
+        if expanded_left < min_left:
+            expanded_width -= min_left - expanded_left
+            expanded_left = min_left
+        if expanded_left + expanded_width > max_right:
+            expanded_width = max(1, max_right - expanded_left)
+
+    return {
+        "left": int(expanded_left),
+        "top": top,
+        "width": int(expanded_width),
+        "height": height,
+    }
 
 def _scaled_clock_regions_for_monitor(monitor: Dict[str, int]) -> List[Dict[str, int]]:
     left = int(monitor["left"])

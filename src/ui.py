@@ -1,4 +1,6 @@
 import os
+import json
+import shutil
 import sys
 import threading
 import tkinter as tk
@@ -26,6 +28,7 @@ from reminders import (
     normalize_warning_times,
 )
 from screencap import (
+    DEBUG_DIR,
     DEBUG_IMAGE_PATH,
     capture_clock_region,
     get_screen_diagnostics,
@@ -1532,6 +1535,40 @@ class PaliaHotpotReminderUI:
                 parse_result.region_used or "-",
             )
 
+    def _save_rejected_clock_sample(self, parse_result: ClockParseResult, *, previous_confirmed_time: str = "") -> None:
+        if not bool(self.settings.get("debug_logging", False)):
+            return
+        if parse_result.accepted or not parse_result.reject_reason:
+            return
+        try:
+            reject_dir = DEBUG_DIR / "clock_ocr_rejects"
+            reject_dir.mkdir(parents=True, exist_ok=True)
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            reason = "".join(char if char.isalnum() else "_" for char in parse_result.reject_reason[:48]).strip("_")
+            stem = f"{timestamp}_{reason or 'reject'}"
+            if DEBUG_IMAGE_PATH.exists():
+                shutil.copy2(DEBUG_IMAGE_PATH, reject_dir / f"{stem}.png")
+            sidecar = {
+                "raw_ocr": parse_result.raw_ocr,
+                "normalized_ocr": parse_result.normalized_ocr,
+                "parse_candidates": list(parse_result.parse_candidates),
+                "selected_time": parse_result.parsed_display_time,
+                "previous_confirmed_time": previous_confirmed_time,
+                "reject_reason": parse_result.reject_reason,
+                "region": parse_result.region_used,
+                "source": parse_result.source,
+                "timestamp_real": parse_result.timestamp_real,
+            }
+            (reject_dir / f"{stem}.json").write_text(json.dumps(sidecar, indent=2), encoding="utf-8")
+            samples = sorted(reject_dir.glob("*"), key=lambda path: path.stat().st_mtime, reverse=True)
+            for old_path in samples[80:]:
+                try:
+                    old_path.unlink()
+                except Exception:
+                    pass
+        except Exception as exc:
+            self.logger.debug("Could not save rejected clock OCR sample: %s", exc)
+
     def _snapshot_for_rejected_test(self, parse_result: ClockParseResult, diagnostic: str) -> TrackerSnapshot:
         def current(variable: tk.StringVar) -> str:
             value = variable.get()
@@ -1598,12 +1635,13 @@ class PaliaHotpotReminderUI:
         except Exception as exc:
             diagnostic = f"Capture/OCR failed: {exc}"
 
-        snapshot = (
-            self._snapshot_for_rejected_test(parse_result, diagnostic)
-            if preserve_tracker_on_reject and not parse_result.accepted
-            else self.tracker.update(parse_result, settings)
-        )
+        if preserve_tracker_on_reject and not parse_result.accepted:
+            snapshot = self._snapshot_for_rejected_test(parse_result, diagnostic)
+        else:
+            snapshot = self.tracker.update(parse_result, settings)
+            parse_result = self.tracker.last_effective_parse_result
         self._log_clock_parse(parse_result, previous_confirmed_time=previous_confirmed_time)
+        self._save_rejected_clock_sample(parse_result, previous_confirmed_time=previous_confirmed_time)
         self._record_good_ocr(parse_result)
         if not diagnostic:
             region = settings.get("clock_region", {})
