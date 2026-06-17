@@ -4,12 +4,28 @@ build/
 pyinstaller-build/
 *.spec
 *.exe
+*.msi
+*.msix
+*.msixbundle
 *.zip
+*.sha256
 
-# Python cache and environments
+# Installer/tool temporary files
+*.iss.tmp
+*.nsi.tmp
+*.bak
+*.old
+*.orig
+
+# Python cache, test cache, coverage, and environments
 __pycache__/
 *.pyc
 *.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
 .venv/
 venv/
 
@@ -26,6 +42,11 @@ config/settings.json
 config/recall_state.json
 recall_state.json
 
+# Local editor/tool state
+.vscode/
+.idea/
+
 # OS/editor noise
 desktop.ini
+Thumbs.db
 .DS_Store
