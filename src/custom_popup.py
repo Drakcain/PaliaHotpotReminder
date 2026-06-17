@@ -39,6 +39,7 @@ BODY_LINE_1_GLOBAL_Y_RATIO = 0.615
 BODY_LINE_2_GLOBAL_Y_RATIO = 0.675
 LOWER_DIVIDER_GLOBAL_Y_RATIO = 0.735
 DETAIL_GLOBAL_Y_RATIO = 0.775
+DETAIL_Y_OFFSET_PX = 30
 CONTENT_INSET_X = 20
 CONTENT_INSET_Y = 14
 TITLE_SHADOW_OFFSET = 1
@@ -415,13 +416,13 @@ class CustomPopupController:
         title_size = min(22, max(18, round(height * 0.038)))
         body_size = min(16, max(14, round(height * 0.028)))
         detail_size = min(12, max(10, round(height * 0.019)))
-        detail_gap = 10
+        detail_gap = 15
         title_y = round(height * TITLE_GLOBAL_Y_RATIO) + TITLE_Y_OFFSET_PX
         upper_divider_y = round(height * UPPER_DIVIDER_GLOBAL_Y_RATIO)
         body_line_1_y = round(height * BODY_LINE_1_GLOBAL_Y_RATIO) + BODY_Y_OFFSET_PX
         body_line_2_y = round(height * BODY_LINE_2_GLOBAL_Y_RATIO) + BODY_Y_OFFSET_PX
         lower_divider_y = round(height * LOWER_DIVIDER_GLOBAL_Y_RATIO)
-        detail_y = round(height * DETAIL_GLOBAL_Y_RATIO)
+        detail_y = round(height * DETAIL_GLOBAL_Y_RATIO) + DETAIL_Y_OFFSET_PX
         detail_lines = _detail_lines(details)
         body_lines = _split_message_lines(message)
 
