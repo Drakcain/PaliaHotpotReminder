@@ -12,7 +12,8 @@ PaliaHotpotReminder version:
 
 ## Install Type
 
-- [ ] Installed with `PaliaHotpotReminder-Setup-v2.9.exe`
+- [ ] Installed with a `PaliaHotpotReminder-Setup-vX.Y.Z.exe` release
+- [ ] Running from a local development checkout
 - [ ] Other
 
 ## Problem
