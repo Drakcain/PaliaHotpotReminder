@@ -23,6 +23,14 @@ No manual folder copying is required.
 - [docs/CHANGELOG.md](docs/CHANGELOG.md)
 - [docs/BRANDING.md](docs/BRANDING.md)
 
+## Support And Legal
+
+- [SECURITY.md](SECURITY.md)
+- [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)
+- [SIGNING.md](SIGNING.md)
+
+No root project license has been selected in this repository yet. Do not assume redistribution or commercial reuse rights until a license is explicitly added by the project owner.
+
 ## Current Version
 - `v3.1.4`
 - Primary artifact: `PaliaHotpotReminder-Setup-v3.1.4.exe`
