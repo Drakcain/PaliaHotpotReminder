@@ -1,6 +1,10 @@
 # Security
 
-Current release: v3.1.4
+Current release:
+
+```text
+v3.1.4
+```
 
 ## Reporting
 
@@ -35,7 +39,7 @@ PaliaHotpotReminder is an external desktop helper. It does not:
 It only reads the user-selected visible clock region on the screen through screen
 capture and OCR.
 
-## Support Data
+## Local Data
 
 `config/settings.json` can contain personal screen-region coordinates and local
 preferences. Debug exports may include OCR diagnostics and local runtime state.

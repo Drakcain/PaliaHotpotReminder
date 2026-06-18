@@ -16,6 +16,13 @@ PaliaHotpotReminder-Setup-v3.1.4.exe
 
 No manual folder copying is required.
 
+## Project Docs
+
+- [docs/PROJECT_IDENTITY.md](docs/PROJECT_IDENTITY.md)
+- [docs/INSTALLER.md](docs/INSTALLER.md)
+- [docs/CHANGELOG.md](docs/CHANGELOG.md)
+- [docs/BRANDING.md](docs/BRANDING.md)
+
 ## Current Version
 - `v3.1.4`
 - Primary artifact: `PaliaHotpotReminder-Setup-v3.1.4.exe`

@@ -75,6 +75,7 @@ foreach ($path in @(
     'installer\README.md',
     'installer\assets',
     'docs\CHANGELOG.md',
+    'docs\BRANDING.md',
     'docs\INSTALLER.md',
     'docs\PROJECT_IDENTITY.md',
     'docs\PROJECT_TRACKER.md',
