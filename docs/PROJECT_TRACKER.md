@@ -1,6 +1,6 @@
 # Project Tracker
 
-## v3.1.4 Popup Solidification + Clock Hardening
+## v3.1.5 Installer Validation Hardening
 
 - Finalized popup scaling rules:
   - `3440x1440 -> 800x600`
@@ -15,7 +15,7 @@
 - Removed stale screen-diagnostic UI entry points.
 - Preserved reminder timing, OCR parser behavior, process watching, tray behavior,
   startup behavior, and installer close-running-HPR logic.
-- Target artifact is `PaliaHotpotReminder-Setup-v3.1.4.exe`.
+- Target artifact is `PaliaHotpotReminder-Setup-v3.1.5.exe`.
 
 ## v3.1.2 Popup Alignment + Reminder Chip Flow
 
@@ -107,7 +107,7 @@
 - Did not add a root `LICENSE`; project license choice remains a required owner decision.
 
 ## Current Task
-The active pass is `v3.1.4`: popup solidification and clock-detection hardening on
+The active pass is `v3.1.5`: installer validation hardening and Python 3.12 resolution hardening on
 top of the released v3.1 modular CustomTkinter architecture. Smart Resume, safe
 local Smart Recall, tray/refocus recovery, Start Reminder/Test Clock preflight,
 Debug / Support finalization, and asynchronous cancellable Setup Clock remain

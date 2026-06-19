@@ -11,7 +11,7 @@ PaliaHotpotReminder is a local desktop helper app. It is not a Palia mod, overla
 Users download one file from GitHub Releases:
 
 ```text
-PaliaHotpotReminder-Setup-v3.1.4.exe
+PaliaHotpotReminder-Setup-v3.1.5.exe
 ```
 
 No manual folder copying is required.
@@ -32,8 +32,8 @@ No manual folder copying is required.
 No root project license has been selected in this repository yet. Do not assume redistribution or commercial reuse rights until a license is explicitly added by the project owner.
 
 ## Current Version
-- `v3.1.4`
-- Primary artifact: `PaliaHotpotReminder-Setup-v3.1.4.exe`
+- `v3.1.5`
+- Primary artifact: `PaliaHotpotReminder-Setup-v3.1.5.exe`
 - Install path: `C:\Tools\PaliaHotpotReminder`
 - Run target: `C:\Tools\PaliaHotpotReminder\Hotpot-Remind.exe`
 
@@ -47,7 +47,7 @@ No root project license has been selected in this repository yet. Do not assume 
 
 ## Screenshots
 
-The screenshots below show the fixed-window v3.1.4 interface and the six main HPR pages.
+The screenshots below show the fixed-window v3.1.5 interface and the six main HPR pages.
 
 | Dashboard | Clock Setup |
 |---|---|
@@ -63,7 +63,7 @@ The screenshots below show the fixed-window v3.1.4 interface and the six main HP
 
 ## Install
 1. Open the latest GitHub Release.
-2. Download `PaliaHotpotReminder-Setup-v3.1.4.exe`.
+2. Download `PaliaHotpotReminder-Setup-v3.1.5.exe`.
 3. Run it and approve the Windows administrator prompt.
 4. Install to `C:\Tools\PaliaHotpotReminder`.
 5. Launch **Palia Hotpot Reminder** from the Start Menu.
@@ -80,8 +80,8 @@ The EXE is currently unsigned. Windows SmartScreen may show **Windows protected 
 Current releases publish:
 
 ```text
-PaliaHotpotReminder-Setup-v3.1.4.exe
-PaliaHotpotReminder-Setup-v3.1.4.exe.sha256
+PaliaHotpotReminder-Setup-v3.1.5.exe
+PaliaHotpotReminder-Setup-v3.1.5.exe.sha256
 ```
 
 Portable ZIP files are not the normal release path.
@@ -132,7 +132,7 @@ The installer preserves existing user settings, safe recall state, logs, debug f
 - Review support bundles before sharing them publicly.
 - `Test Clock` uses the same parser as the live reminder loop.
 - If OCR is noisy, export a Debug Report for support.
-- If the bundled clock reader is missing, reinstall using `PaliaHotpotReminder-Setup-v3.1.4.exe`.
+- If the bundled clock reader is missing, reinstall using `PaliaHotpotReminder-Setup-v3.1.5.exe`.
 - `config/settings.json` is local-only and should not be shared as source because it can contain personal clock-region setup.
 
 ## Repo Notes

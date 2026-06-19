@@ -3,11 +3,12 @@ param()
 
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
+$script:Python312Command = $null
 
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 Set-Location $repoRoot
 
-$version = '3.1.4'
+$version = '3.1.5'
 $buildRoot = Join-Path $repoRoot 'build'
 $payloadRoot = Join-Path $buildRoot 'installer-payload'
 $pyiDist = Join-Path $buildRoot 'pyinstaller-dist'
@@ -71,10 +72,68 @@ function Get-IcoSizes {
 
 function Invoke-Py312 {
     param([Parameter(Mandatory = $true)][string[]]$Arguments)
-    & py -3.12 @Arguments
-    if ($LASTEXITCODE -ne 0) {
-        throw "Command failed: py -3.12 $($Arguments -join ' ')"
+
+    if (-not $script:Python312Command) {
+        $script:Python312Command = Get-Python312Command
     }
+
+    if ($script:Python312Command -eq 'py') {
+        & py -3.12 @Arguments
+    }
+    else {
+        & $script:Python312Command @Arguments
+    }
+
+    if ($LASTEXITCODE -ne 0) {
+        $runner = if ($script:Python312Command -eq 'py') { 'py -3.12' } else { $script:Python312Command }
+        throw "Command failed: $runner $($Arguments -join ' ')"
+    }
+}
+
+function Get-Python312Command {
+    $launcher = Get-Command py -ErrorAction SilentlyContinue
+    if ($launcher) {
+        & $launcher.Source -3.12 -c "import sys; raise SystemExit(0 if sys.version_info[:2] == (3, 12) else 1)" *> $null
+        if ($LASTEXITCODE -eq 0) {
+            return 'py'
+        }
+    }
+
+    $candidatePaths = @()
+    $registryKeys = @(
+        'HKCU:\Software\Python\PythonCore\3.12\InstallPath',
+        'HKLM:\Software\Python\PythonCore\3.12\InstallPath'
+    )
+
+    foreach ($key in $registryKeys) {
+        $item = Get-ItemProperty -Path $key -ErrorAction SilentlyContinue
+        if ($item) {
+            $installPath = $item.'(Default)'
+            if ($installPath) {
+                $candidatePaths += (Join-Path $installPath 'python.exe')
+            }
+
+            if ($item.ExecutablePath) {
+                $candidatePaths += $item.ExecutablePath
+            }
+        }
+    }
+
+    $candidatePaths += @(
+        'C:\Users\Administrator\AppData\Local\Programs\Python\Python312\python.exe',
+        'C:\Program Files\Python312\python.exe'
+    )
+
+    foreach ($candidate in ($candidatePaths | Select-Object -Unique)) {
+        if (-not [string]::IsNullOrWhiteSpace($candidate) -and (Test-Path -LiteralPath $candidate)) {
+            & $candidate -c "import sys; raise SystemExit(0 if sys.version_info[:2] == (3, 12) else 1)" *> $null
+            if ($LASTEXITCODE -eq 0) {
+                return $candidate
+            }
+        }
+    }
+
+    throw 'Python 3.12 is required but could not be resolved from the launcher, registry, or standard install paths.'
 }
 
 function Find-InnoCompiler {
@@ -109,9 +168,15 @@ if (-not $iscc) {
 Write-Host "ISCC.exe: $iscc"
 
 Write-Step 'Verifying Python 3.12'
-$pythonVersion = & py -3.12 -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}')"
+$script:Python312Command = Get-Python312Command
+$pythonVersion = if ($script:Python312Command -eq 'py') {
+    & py -3.12 -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}')"
+}
+else {
+    & $script:Python312Command -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}')"
+}
 if ($LASTEXITCODE -ne 0 -or -not $pythonVersion.StartsWith('3.12')) {
-    throw 'Python 3.12 is required but was not found.'
+    throw 'Python 3.12 is required but could not be executed.'
 }
 Write-Host "Python 3.12 detected: $pythonVersion"
 

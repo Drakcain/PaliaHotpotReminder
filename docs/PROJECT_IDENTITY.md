@@ -32,8 +32,8 @@ The `Mods` folder is an organizational label only and does not imply game modifi
 ## Distribution
 
 * Installer-first.
-* Primary release artifact: `PaliaHotpotReminder-Setup-v3.1.4.exe`.
-* Matching checksum artifact: `PaliaHotpotReminder-Setup-v3.1.4.exe.sha256`.
+* Primary release artifact: `PaliaHotpotReminder-Setup-v3.1.5.exe`.
+* Matching checksum artifact: `PaliaHotpotReminder-Setup-v3.1.5.exe.sha256`.
 * No portable ZIP release path.
 
 ## Current UI Direction

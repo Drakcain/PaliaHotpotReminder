@@ -1,5 +1,23 @@
 # Changelog
 
+## v3.1.5
+
+### Changed
+
+- Hardened the installer build script so Python 3.12 can be resolved from the launcher, registry, or standard install paths instead of failing on a missing `py -3.12` path.
+- Preserved the fixed-window CustomTkinter runtime shell and the existing installed-first release model.
+
+### Preserved
+
+- No OCR engine replacement.
+- No Palia memory reading, packet inspection, injection, hooks, or gameplay automation.
+- No reminder timing, tray/startup behavior, or installer close-running-HPR behavior rewrite.
+
+### Distribution
+
+- Primary release artifact is `PaliaHotpotReminder-Setup-v3.1.5.exe`.
+- Checksum artifact is `PaliaHotpotReminder-Setup-v3.1.5.exe.sha256`.
+
 ## v3.1.4
 
 ### Changed

@@ -1,6 +1,6 @@
 # UI Roadmap
 
-This document tracks the current HPR UI rules and the v3.1.4 fixed-window modular
+This document tracks the current HPR UI rules and the v3.1.5 fixed-window modular
 CustomTkinter direction.
 
 ## Current UI State
@@ -65,7 +65,7 @@ Future visual reference:
 - https://customtkinter.tomschimansky.com/documentation/
 - https://github.com/TomSchimansky/CustomTkinter/blob/master/documentation_images/complex_example_dark_Windows.png
 
-The v3.1.4 direction is a black/purple desktop dashboard inspired by the official
+The v3.1.5 direction is a black/purple desktop dashboard inspired by the official
 CustomTkinter complex example and the user's black/purple VS Code workspace:
 
 - persistent left navigation

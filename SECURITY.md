@@ -3,7 +3,7 @@
 Current release:
 
 ```text
-v3.1.4
+v3.1.5
 ```
 
 ## Reporting

@@ -135,8 +135,8 @@ foreach ($path in $versionFiles) {
     $full = Join-Path $repoRoot $path
     if (Test-Path -LiteralPath $full) {
         $text = Get-Content -LiteralPath $full -Raw
-        if ($text -notmatch 'v3\.1\.4|3\.1\.4') {
-            Add-Failure "No v3.1.4/3.1.4 reference found in $path"
+        if ($text -notmatch 'v3\.1\.5|3\.1\.5') {
+            Add-Failure "No v3.1.5/3.1.5 reference found in $path"
         }
     }
 }
@@ -157,7 +157,7 @@ foreach ($pattern in @(
     'THIRD-PARTY-NOTICES\.md',
     'SIGNING\.md',
     '\.\.\\VERSION',
-    'PaliaHotpotReminder-Setup-v3\.1\.4'
+    'PaliaHotpotReminder-Setup-v3\.1\.5'
 )) {
     if ($iss -notmatch $pattern) {
         Add-Failure "Installer script missing expected pattern: $pattern"
@@ -170,7 +170,7 @@ foreach ($pattern in @(
     'installed Windows reminder utility',
     'assets/Branding/Palia-HPR-brand-banner\.png',
     'Users download one file',
-    'PaliaHotpotReminder-Setup-v3\.1\.4\.exe',
+    'PaliaHotpotReminder-Setup-v3\.1\.5\.exe',
     'C:\\Tools\\PaliaHotpotReminder'
 )) {
     if ($readme -notmatch $pattern) {
@@ -191,7 +191,7 @@ $docsText = @(
 foreach ($pattern in @(
     'installer-first|installed Windows reminder utility',
     'C:\\Tools\\PaliaHotpotReminder',
-    'PaliaHotpotReminder-Setup-v3\.1\.4\.exe',
+    'PaliaHotpotReminder-Setup-v3\.1\.5\.exe',
     'does not modify Palia',
     'read game memory',
     'inject|hook',
@@ -239,8 +239,8 @@ Write-Host '==> Checking release process and changelog truth' -ForegroundColor C
 $releaseProcess = Get-Content -LiteralPath (Join-Path $repoRoot 'docs\RELEASE_PROCESS.md') -Raw
 foreach ($pattern in @(
     'Release Process',
-    'PaliaHotpotReminder-Setup-v3\.1\.4\.exe',
-    'PaliaHotpotReminder-Setup-v3\.1\.4\.exe\.sha256',
+    'PaliaHotpotReminder-Setup-v3\.1\.5\.exe',
+    'PaliaHotpotReminder-Setup-v3\.1\.5\.exe\.sha256',
     'C:\\Tools\\PaliaHotpotReminder',
     'Portable ZIP files are not the normal release path',
     'No Palia memory reading',
@@ -258,6 +258,7 @@ foreach ($pattern in @(
 
 $changelog = Get-Content -LiteralPath (Join-Path $repoRoot 'docs\CHANGELOG.md') -Raw
 foreach ($pattern in @(
+    '## v3\.1\.5',
     '## v3\.1\.4',
     '## v3\.1\.1',
     '## v3\.1',
@@ -265,7 +266,7 @@ foreach ($pattern in @(
     '## v2\.9',
     '## v2\.8',
     'Installer-first|installer-first',
-    'PaliaHotpotReminder-Setup-v3\.1\.4\.exe',
+    'PaliaHotpotReminder-Setup-v3\.1\.5\.exe',
     'PaliaHotpotReminder-v2\.8-portable\.zip',
     'No gameplay automation'
 )) {
@@ -288,7 +289,7 @@ foreach ($pattern in @(
     }
 }
 
-Write-Host '==> Checking CustomTkinter v3.1.4 fixed-window UI wiring' -ForegroundColor Cyan
+Write-Host '==> Checking CustomTkinter v3.1.5 fixed-window UI wiring' -ForegroundColor Cyan
 $uiSource = Get-Content -LiteralPath (Join-Path $repoRoot 'src\ui.py') -Raw
 $mainSource = Get-Content -LiteralPath (Join-Path $repoRoot 'src\main.py') -Raw
 $themeSource = Get-Content -LiteralPath (Join-Path $repoRoot 'src\theme.py') -Raw
@@ -321,7 +322,7 @@ foreach ($pattern in @(
 )) {
     $haystack = ($uiSource, $mainSource, $themeSource, $buildScript, $shellSource, $stateSource, $actionsSource, $pageIndexSource) -join "`n"
     if ($haystack -notmatch $pattern) {
-        Add-Failure "CustomTkinter v3.1.4 wiring missing expected pattern: $pattern"
+        Add-Failure "CustomTkinter v3.1.5 wiring missing expected pattern: $pattern"
     }
 }
 if ($shellSource -match 'CTkScrollableFrame') {
