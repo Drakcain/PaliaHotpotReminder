@@ -2,7 +2,7 @@
 
 ## Canonical Path
 
-`C:\GITHUB BUILDS\WINDOWS\PaliaHotpotReminder`
+`D:\GITHUB BUILDS\WINDOWS\PaliaHotpotReminder`
 
 ## Identity
 
@@ -61,3 +61,4 @@ The `Mods` folder is an organizational label only and does not imply game modifi
 ## Affiliation
 
 PaliaHotpotReminder is unofficial and not affiliated with Palia, Singularity 6, or Daybreak Game Company.
+
