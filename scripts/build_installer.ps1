@@ -37,6 +37,7 @@ $installerScript = Join-Path $repoRoot 'installer\PaliaHotpotReminder.iss'
 $distDir = Join-Path $repoRoot 'dist'
 $installerExe = Join-Path $distDir "PaliaHotpotReminder-Setup-v$version.exe"
 $hashPath = "$installerExe.sha256"
+$selfTestTimeoutSeconds = 180
 
 function Write-Step {
     param([Parameter(Mandatory = $true)][string]$Message)
@@ -321,8 +322,26 @@ Rename-Item -LiteralPath $builtExe -NewName 'Hotpot-Remind.exe'
 Write-Step 'Running staged app self-test'
 $payloadExe = Join-Path $payloadRoot 'Hotpot-Remind.exe'
 Assert-PathExists -Path $payloadExe -Message "Missing staged EXE: $payloadExe"
-$selfTest = Start-Process -FilePath $payloadExe -ArgumentList '--self-test' -Wait -PassThru
+$selfTest = Start-Process -FilePath $payloadExe -ArgumentList '--self-test' -PassThru
+if (-not $selfTest.WaitForExit($selfTestTimeoutSeconds * 1000)) {
+    try {
+        Stop-Process -Id $selfTest.Id -Force -ErrorAction Stop
+    } catch {
+        Write-Warning "Timed-out staged self-test process could not be stopped cleanly: $($_.Exception.Message)"
+    }
+    $selfTestLog = Join-Path $payloadRoot 'debug\self_test.log'
+    if (Test-Path -LiteralPath $selfTestLog) {
+        Write-Warning 'Timed-out staged self-test log output:'
+        Get-Content -LiteralPath $selfTestLog | Write-Warning
+    }
+    throw "Staged app self-test exceeded the ${selfTestTimeoutSeconds}-second timeout."
+}
 if ($selfTest.ExitCode -ne 0) {
+    $selfTestLog = Join-Path $payloadRoot 'debug\self_test.log'
+    if (Test-Path -LiteralPath $selfTestLog) {
+        Write-Warning 'Failed staged self-test log output:'
+        Get-Content -LiteralPath $selfTestLog | Write-Warning
+    }
     throw "Staged app self-test failed with exit code $($selfTest.ExitCode)"
 }
 Remove-PathIfExists -Path (Join-Path $payloadRoot 'debug')

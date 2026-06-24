@@ -1,12 +1,9 @@
 import argparse
 import sys
 import tempfile
-import tkinter as tk
 from contextlib import redirect_stdout
 from datetime import datetime, timedelta
 from pathlib import Path
-
-import customtkinter as ctk
 
 from config import load_settings
 from debug_report import build_debug_report
@@ -16,7 +13,6 @@ from paths import get_app_root, get_source_root, resolve_resource_path
 from smart_recall import RECALL_KEYS, default_recall_state, load_recall_state, save_recall_state
 from smart_resume import NEEDS_SETUP, PALIA_NOT_OPEN, READY, evaluate_smart_resume, monitor_fingerprint
 from state import PaliaTimeTracker
-from ui import PaliaHotpotReminderUI
 
 
 def get_ico_sizes(path: Path) -> list[str]:
@@ -247,6 +243,10 @@ def main() -> None:
     guard = SingleInstanceGuard("Local\\PaliaHotpotReminder")
     if not guard.acquire():
         raise SystemExit(0)
+
+    import customtkinter as ctk
+
+    from ui import PaliaHotpotReminderUI
 
     ctk.set_appearance_mode("dark")
     root = ctk.CTk()
