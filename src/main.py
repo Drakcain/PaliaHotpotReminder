@@ -1,7 +1,7 @@
 import argparse
 import sys
 import tempfile
-from contextlib import redirect_stdout
+from contextlib import redirect_stderr, redirect_stdout
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -232,10 +232,10 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.self_test:
-        if getattr(sys, "frozen", False) and sys.stdout is None:
+        if getattr(sys, "frozen", False):
             log_path = get_app_root() / "debug" / "self_test.log"
             log_path.parent.mkdir(parents=True, exist_ok=True)
-            with log_path.open("w", encoding="utf-8") as handle, redirect_stdout(handle):
+            with log_path.open("w", encoding="utf-8") as handle, redirect_stdout(handle), redirect_stderr(handle):
                 code = run_self_test()
             raise SystemExit(code)
         raise SystemExit(run_self_test())
