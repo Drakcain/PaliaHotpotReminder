@@ -333,15 +333,15 @@ if ($shellSource -match 'CTkScrollableFrame') {
 Write-Host '==> Checking .gitignore release/runtime exclusions' -ForegroundColor Cyan
 $gitignore = Get-Content -LiteralPath (Join-Path $repoRoot '.gitignore') -Raw
 foreach ($pattern in @(
-    '(?m)^dist/$',
-    '(?m)^build/$',
-    '(?m)^logs/$',
-    '(?m)^debug/$',
-    '(?m)^config/settings\.json$',
-    '(?m)^config/recall_state\.json$',
-    '(?m)^\*\.exe$',
-    '(?m)^\*\.zip$',
-    '(?m)^\*\.log$'
+    '(?m)^dist/\r?$',
+    '(?m)^build/\r?$',
+    '(?m)^logs/\r?$',
+    '(?m)^debug/\r?$',
+    '(?m)^config/settings\.json\r?$',
+    '(?m)^config/recall_state\.json\r?$',
+    '(?m)^\*\.exe\r?$',
+    '(?m)^\*\.zip\r?$',
+    '(?m)^\*\.log\r?$'
 )) {
     if ($gitignore -notmatch $pattern) {
         Add-Failure ".gitignore missing expected exclusion: $pattern"
