@@ -343,6 +343,9 @@ Copy-Item -Path (Join-Path $tesseractSource '*') -Destination $payloadTesseract 
 
 $payloadSettingsPath = Join-Path $payloadConfig 'settings.json'
 $payloadExamplePath = Join-Path $payloadConfig 'settings.example.json'
+if (-not (Test-Path -LiteralPath $payloadSettingsPath) -and (Test-Path -LiteralPath $payloadExamplePath)) {
+    Copy-Item -LiteralPath $payloadExamplePath -Destination $payloadSettingsPath -Force
+}
 foreach ($settingsFile in @($payloadSettingsPath, $payloadExamplePath)) {
     if (Test-Path -LiteralPath $settingsFile) {
         $settings = Get-Content -LiteralPath $settingsFile -Raw | ConvertFrom-Json
