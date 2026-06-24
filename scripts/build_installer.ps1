@@ -38,6 +38,7 @@ $distDir = Join-Path $repoRoot 'dist'
 $installerExe = Join-Path $distDir "PaliaHotpotReminder-Setup-v$version.exe"
 $hashPath = "$installerExe.sha256"
 $selfTestTimeoutSeconds = 180
+$isCiRunner = ($env:GITHUB_ACTIONS -eq 'true' -or $env:CI -eq 'true')
 
 function Write-Step {
     param([Parameter(Mandatory = $true)][string]$Message)
@@ -80,6 +81,52 @@ function Get-IcoSizes {
         $offset += 16
     }
     return $sizes
+}
+
+function Invoke-PackagedPayloadVerification {
+    param(
+        [Parameter(Mandatory = $true)][string]$PayloadRoot,
+        [Parameter(Mandatory = $true)][string]$PayloadExe
+    )
+
+    $portableTesseract = Join-Path $PayloadRoot 'tesseract\tesseract.exe'
+    $portableTessdata = Join-Path $PayloadRoot 'tesseract\tessdata'
+    $portableEng = Join-Path $portableTessdata 'eng.traineddata'
+    $portableSettings = Join-Path $PayloadRoot 'config\settings.json'
+    $portableExample = Join-Path $PayloadRoot 'config\settings.example.json'
+
+    Assert-PathExists -Path $PayloadExe -Message "Missing staged EXE: $PayloadExe"
+    Assert-PathExists -Path $portableTesseract -Message "Missing bundled tesseract.exe: $portableTesseract"
+    Assert-PathExists -Path $portableEng -Message "Missing bundled eng.traineddata: $portableEng"
+    Assert-PathExists -Path $portableSettings -Message "Missing staged settings.json: $portableSettings"
+    Assert-PathExists -Path $portableExample -Message "Missing staged settings.example.json: $portableExample"
+
+    $exeInfo = Get-Item -LiteralPath $PayloadExe
+    if ($exeInfo.Length -lt 1MB) {
+        throw "Staged EXE looks too small to be valid: $($exeInfo.Length) bytes"
+    }
+
+    $settings = Get-Content -LiteralPath $portableSettings -Raw | ConvertFrom-Json
+    $example = Get-Content -LiteralPath $portableExample -Raw | ConvertFrom-Json
+    if ($settings.tesseract_cmd -ne 'tesseract\tesseract.exe') {
+        throw "Staged settings.json did not rewrite tesseract_cmd correctly: $($settings.tesseract_cmd)"
+    }
+    if ($example.tesseract_cmd -ne 'tesseract\tesseract.exe') {
+        throw "Staged settings.example.json did not rewrite tesseract_cmd correctly: $($example.tesseract_cmd)"
+    }
+
+    $env:TESSDATA_PREFIX = Join-Path $PayloadRoot 'tesseract'
+    try {
+        $tesseractOutput = & $portableTesseract --list-langs --tessdata-dir $portableTessdata 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            throw "Bundled tesseract preflight failed with exit code $LASTEXITCODE"
+        }
+        if (($tesseractOutput | Out-String) -notmatch '(?im)^\s*eng\s*$') {
+            throw 'Bundled tesseract preflight did not report eng language data.'
+        }
+    } finally {
+        Remove-Item Env:TESSDATA_PREFIX -ErrorAction SilentlyContinue
+    }
 }
 
 function Invoke-Py312 {
@@ -321,28 +368,33 @@ Rename-Item -LiteralPath $builtExe -NewName 'Hotpot-Remind.exe'
 
 Write-Step 'Running staged app self-test'
 $payloadExe = Join-Path $payloadRoot 'Hotpot-Remind.exe'
-Assert-PathExists -Path $payloadExe -Message "Missing staged EXE: $payloadExe"
-$selfTest = Start-Process -FilePath $payloadExe -ArgumentList '--self-test' -PassThru
-if (-not $selfTest.WaitForExit($selfTestTimeoutSeconds * 1000)) {
-    try {
-        Stop-Process -Id $selfTest.Id -Force -ErrorAction Stop
-    } catch {
-        Write-Warning "Timed-out staged self-test process could not be stopped cleanly: $($_.Exception.Message)"
+if ($isCiRunner) {
+    Write-Host 'CI runner detected. Using packaged payload verification instead of launching the windowed EXE.'
+    Invoke-PackagedPayloadVerification -PayloadRoot $payloadRoot -PayloadExe $payloadExe
+} else {
+    Assert-PathExists -Path $payloadExe -Message "Missing staged EXE: $payloadExe"
+    $selfTest = Start-Process -FilePath $payloadExe -ArgumentList '--self-test' -PassThru
+    if (-not $selfTest.WaitForExit($selfTestTimeoutSeconds * 1000)) {
+        try {
+            Stop-Process -Id $selfTest.Id -Force -ErrorAction Stop
+        } catch {
+            Write-Warning "Timed-out staged self-test process could not be stopped cleanly: $($_.Exception.Message)"
+        }
+        $selfTestLog = Join-Path $payloadRoot 'debug\self_test.log'
+        if (Test-Path -LiteralPath $selfTestLog) {
+            Write-Warning 'Timed-out staged self-test log output:'
+            Get-Content -LiteralPath $selfTestLog | Write-Warning
+        }
+        throw "Staged app self-test exceeded the ${selfTestTimeoutSeconds}-second timeout."
     }
-    $selfTestLog = Join-Path $payloadRoot 'debug\self_test.log'
-    if (Test-Path -LiteralPath $selfTestLog) {
-        Write-Warning 'Timed-out staged self-test log output:'
-        Get-Content -LiteralPath $selfTestLog | Write-Warning
+    if ($selfTest.ExitCode -ne 0) {
+        $selfTestLog = Join-Path $payloadRoot 'debug\self_test.log'
+        if (Test-Path -LiteralPath $selfTestLog) {
+            Write-Warning 'Failed staged self-test log output:'
+            Get-Content -LiteralPath $selfTestLog | Write-Warning
+        }
+        throw "Staged app self-test failed with exit code $($selfTest.ExitCode)"
     }
-    throw "Staged app self-test exceeded the ${selfTestTimeoutSeconds}-second timeout."
-}
-if ($selfTest.ExitCode -ne 0) {
-    $selfTestLog = Join-Path $payloadRoot 'debug\self_test.log'
-    if (Test-Path -LiteralPath $selfTestLog) {
-        Write-Warning 'Failed staged self-test log output:'
-        Get-Content -LiteralPath $selfTestLog | Write-Warning
-    }
-    throw "Staged app self-test failed with exit code $($selfTest.ExitCode)"
 }
 Remove-PathIfExists -Path (Join-Path $payloadRoot 'debug')
 Remove-PathIfExists -Path (Join-Path $payloadRoot 'logs')
