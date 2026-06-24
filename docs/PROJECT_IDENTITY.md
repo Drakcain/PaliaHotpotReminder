@@ -2,7 +2,7 @@
 
 ## Canonical Path
 
-`D:\GITHUB BUILDS\WINDOWS\PaliaHotpotReminder`
+`<workspace>\PaliaHotpotReminder`
 
 ## Identity
 
@@ -32,8 +32,8 @@ The `Mods` folder is an organizational label only and does not imply game modifi
 ## Distribution
 
 * Installer-first.
-* Primary release artifact: `PaliaHotpotReminder-Setup-v3.1.5.exe`.
-* Matching checksum artifact: `PaliaHotpotReminder-Setup-v3.1.5.exe.sha256`.
+* Primary release artifact: `PaliaHotpotReminder-Setup-v3.1.6.exe`.
+* Matching checksum artifact: `PaliaHotpotReminder-Setup-v3.1.6.exe.sha256`.
 * No portable ZIP release path.
 
 ## Current UI Direction
@@ -61,4 +61,5 @@ The `Mods` folder is an organizational label only and does not imply game modifi
 ## Affiliation
 
 PaliaHotpotReminder is unofficial and not affiliated with Palia, Singularity 6, or Daybreak Game Company.
+
 

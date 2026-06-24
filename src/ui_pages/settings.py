@@ -35,6 +35,12 @@ def build_settings_page(parent, app, colors: dict[str, str]) -> None:
     _add_info(release, "Signing", "Unsigned unless a future signing pass is completed.", 4, colors)
     _add_info(release, "Verification", "Verify the installer SHA from GitHub Releases before install.", 5, colors)
     _add_info(release, "Support path", "Diagnostics > Debug / Support exports the current report and logs.", 6, colors)
+    button(release, "Check for Updates", app.ui_actions.check_for_updates, colors=colors, variant="primary").grid(
+        row=7, column=0, sticky="ew", padx=16, pady=(12, 14)
+    )
+    button(release, "Open Releases", app.ui_actions.open_releases, colors=colors).grid(
+        row=7, column=1, sticky="ew", padx=(8, 16), pady=(12, 14)
+    )
 
     about = card(parent, "About HPR", colors=colors, columns=2)
     about.grid(row=1, column=0, columnspan=2, sticky="nsew", pady=8)

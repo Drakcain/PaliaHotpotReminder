@@ -1,5 +1,8 @@
 [CmdletBinding()]
-param()
+param(
+    [ValidatePattern('^\d+\.\d+\.\d+([.-][A-Za-z0-9.-]+)?$')]
+    [string]$Version
+)
 
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
@@ -8,7 +11,15 @@ $script:Python312Command = $null
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 Set-Location $repoRoot
 
-$version = '3.1.5'
+$versionFile = Join-Path $repoRoot 'VERSION'
+$version = if ($Version) {
+    $Version
+} else {
+    if (-not (Test-Path -LiteralPath $versionFile)) {
+        throw "VERSION file was not found: $versionFile"
+    }
+    (Get-Content -LiteralPath $versionFile -Raw).Trim()
+}
 $buildRoot = Join-Path $repoRoot 'build'
 $payloadRoot = Join-Path $buildRoot 'installer-payload'
 $pyiDist = Join-Path $buildRoot 'pyinstaller-dist'
@@ -120,7 +131,7 @@ function Get-Python312Command {
     }
 
     $candidatePaths += @(
-        'C:\Users\Administrator\AppData\Local\Programs\Python\Python312\python.exe',
+        (Join-Path $env:LOCALAPPDATA 'Programs\Python\Python312\python.exe'),
         'C:\Program Files\Python312\python.exe'
     )
 

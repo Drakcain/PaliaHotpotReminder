@@ -1,6 +1,6 @@
 # Building PaliaHotpotReminder
 
-Current release: v3.1.5
+Current release: v3.1.6
 
 ## Requirements
 
@@ -46,8 +46,8 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\build_installe
 Expected output for the current release line:
 
 ```text
-dist\PaliaHotpotReminder-Setup-v3.1.5.exe
-dist\PaliaHotpotReminder-Setup-v3.1.5.exe.sha256
+dist\PaliaHotpotReminder-Setup-v3.1.6.exe
+dist\PaliaHotpotReminder-Setup-v3.1.6.exe.sha256
 ```
 
 The build script validates the repository, builds the Python/Tkinter app with PyInstaller, stages installer payload files under ignored `build\`, bundles local Tesseract OCR, and compiles the Inno Setup installer.
@@ -59,8 +59,8 @@ PaliaHotpotReminder is installer-first.
 Normal GitHub Releases should publish:
 
 ```text
-PaliaHotpotReminder-Setup-v3.1.5.exe
-PaliaHotpotReminder-Setup-v3.1.5.exe.sha256
+PaliaHotpotReminder-Setup-v3.1.6.exe
+PaliaHotpotReminder-Setup-v3.1.6.exe.sha256
 ```
 
 Do not reintroduce a portable ZIP as the normal release path.

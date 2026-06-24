@@ -30,3 +30,9 @@ class UIActions:
 
     def reload_settings(self) -> None:
         self.app._reload_convenience_settings()
+
+    def check_for_updates(self) -> None:
+        self.app._check_for_updates(manual=True)
+
+    def open_releases(self) -> None:
+        self.app._open_releases_page()

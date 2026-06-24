@@ -1,5 +1,25 @@
 # Changelog
 
+## v3.1.6
+
+### Changed
+
+- Added built-in GitHub release update checks to the installer-first Windows UI.
+- Added authenticated installer download, optional SHA-256 verification, and launch-on-confirm update flow.
+- Removed the last hardcoded installer-version assumptions from the build script and repo validation pass.
+- Added GitHub Actions release automation for tagged installer builds.
+
+### Preserved
+
+- No OCR engine replacement.
+- No Palia memory reading, packet inspection, injection, hooks, or gameplay automation.
+- No reminder timing, tray/startup behavior, or installer close-running-HPR behavior rewrite.
+
+### Distribution
+
+- Primary release artifact is `PaliaHotpotReminder-Setup-v3.1.6.exe`.
+- Checksum artifact is `PaliaHotpotReminder-Setup-v3.1.6.exe.sha256`.
+
 ## v3.1.5
 
 ### Changed

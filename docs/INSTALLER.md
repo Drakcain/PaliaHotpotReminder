@@ -1,12 +1,12 @@
 # PaliaHotpotReminder Installed Mode
 
 ## Purpose
-`v3.1.5` preserves the installed-first Windows utility model and refines the runtime UI into a fixed-size CustomTkinter shell with High-Contrast Black + Purple styling.
+`v3.1.6` preserves the installed-first Windows utility model and refines the runtime UI into a fixed-size CustomTkinter shell with High-Contrast Black + Purple styling.
 
 Normal users should use:
 
 ```text
-PaliaHotpotReminder-Setup-v3.1.5.exe
+PaliaHotpotReminder-Setup-v3.1.6.exe
 ```
 
 ## Install Path
@@ -77,8 +77,8 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\build_installe
 Expected outputs:
 
 ```text
-dist\PaliaHotpotReminder-Setup-v3.1.5.exe
-dist\PaliaHotpotReminder-Setup-v3.1.5.exe.sha256
+dist\PaliaHotpotReminder-Setup-v3.1.6.exe
+dist\PaliaHotpotReminder-Setup-v3.1.6.exe.sha256
 ```
 
 The build script stages app files under `build\installer-payload` for Inno Setup. That staging folder is disposable and is not a release artifact.
@@ -128,3 +128,4 @@ Installer support does not change the runtime safety model:
 - No GitHub release upload
 - No source ZIP release path
 - No portable ZIP release path
+

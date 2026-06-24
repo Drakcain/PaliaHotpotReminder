@@ -46,6 +46,7 @@ from ui_components import StatusChip, button, switch
 from ui_pages import PAGE_BUILDERS
 from ui_shell import UIShell
 from ui_state import UIState
+from update_manager import download_and_launch_update, get_update_offer, open_releases_page
 from watchlog import append_watch_log
 from tray_manager import TrayManager, tray_available
 from debug_report import build_debug_report, export_debug_report
@@ -291,6 +292,8 @@ class PaliaHotpotReminderUI:
         self._run_smart_resume("startup", refresh_detection=False)
         self._maybe_autostart()
         self._apply_theme()
+        if getattr(sys, "frozen", False):
+            self.root.after(6000, lambda: self._check_for_updates(manual=False))
         self.root.protocol("WM_DELETE_WINDOW", self._on_close)
         self.root.bind("<Unmap>", self._on_unmap)
         self.root.bind("<Map>", self._on_map)
@@ -2239,6 +2242,89 @@ class PaliaHotpotReminderUI:
 
     def _view_latest_log(self) -> None:
         self._open_latest_log()
+
+    def _open_releases_page(self) -> None:
+        try:
+            open_releases_page()
+            self.status_var.set("Opened GitHub Releases")
+        except Exception as exc:
+            self.status_var.set(f"Could not open Releases page: {exc}")
+            messagebox.showerror("Open Releases Failed", str(exc))
+
+    def _check_for_updates(self, manual: bool) -> None:
+        if getattr(self, "_update_check_running", False):
+            if manual:
+                self.status_var.set("Update check already in progress")
+            return
+
+        self._update_check_running = True
+        if manual:
+            self.status_var.set("Checking for updates...")
+
+        def worker() -> None:
+            try:
+                offer = get_update_offer()
+                self.root.after(0, lambda: self._finish_update_check(offer, manual))
+            except Exception as exc:
+                self.root.after(0, lambda: self._fail_update_check(exc, manual))
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def _finish_update_check(self, offer, manual: bool) -> None:
+        self._update_check_running = False
+        if not offer:
+            if manual:
+                self.status_var.set(f"No update available. Current version: {APP_VERSION}")
+                messagebox.showinfo("Palia Hotpot Reminder", f"You are already on the latest version: {APP_VERSION}")
+            return
+
+        body = offer.get("body") or ""
+        detail_lines = [
+            f"Installed: {APP_VERSION}",
+            f"Latest: v{offer['latest_version']}",
+            "",
+            "Download and launch the new installer now?",
+        ]
+        if body:
+            detail_lines += ["", body[:1200]]
+        should_install = messagebox.askyesno(
+            "Update Available",
+            "\n".join(detail_lines)
+        )
+        if not should_install:
+            self.status_var.set(f"Update available: v{offer['latest_version']}")
+            return
+
+        self.status_var.set(f"Downloading update v{offer['latest_version']}...")
+        self.root.after(150, lambda: self._start_update_download(offer))
+
+    def _start_update_download(self, offer) -> None:
+        def worker() -> None:
+            try:
+                installer_path = download_and_launch_update(offer)
+                self.root.after(0, lambda: self._finish_update_launch(offer, installer_path))
+            except Exception as exc:
+                self.root.after(0, lambda: self._fail_update_download(exc))
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def _finish_update_launch(self, offer, installer_path: Path) -> None:
+        self.status_var.set(f"Installer launched: {installer_path.name}")
+        messagebox.showinfo(
+            "Installer Launched",
+            f"Downloaded and launched v{offer['latest_version']}.\n\n"
+            "Follow the installer prompts to complete the update."
+        )
+
+    def _fail_update_check(self, exc: Exception, manual: bool) -> None:
+        self._update_check_running = False
+        if manual:
+            self.status_var.set(f"Update check failed: {exc}")
+            messagebox.showerror("Update Check Failed", str(exc))
+
+    def _fail_update_download(self, exc: Exception) -> None:
+        self.status_var.set(f"Update download failed: {exc}")
+        messagebox.showerror("Update Download Failed", str(exc))
 
     def _build_debug_report_text(self) -> str:
         latest_log, _ = get_log_paths()

@@ -1,6 +1,6 @@
 # Third-Party Notices
 
-Current release: v3.1.5
+Current release: v3.1.6
 
 PaliaHotpotReminder is an independent external helper utility. It is not
 affiliated with, authorized by, sponsored by, or endorsed by Palia, Singularity 6,
